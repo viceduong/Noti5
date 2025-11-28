@@ -1,6 +1,6 @@
 //
 //  SettingsView.swift
-//  NotifyFilter
+//  Noti5
 //
 //  App settings and configuration
 //
@@ -93,9 +93,10 @@ struct SettingsView: View {
 
                 // Danger Zone
                 Section(header: Text("Danger Zone")) {
-                    Button(role: .destructive, action: { showingResetAlert = true }) {
+                    Button(action: { showingResetAlert = true }) {
                         Label("Reset All Data", systemImage: "trash")
                     }
+                    .foregroundColor(.red)
                 }
 
                 // About Section
@@ -119,7 +120,7 @@ struct SettingsView: View {
                     }
                 }
             }
-            .listStyle(.insetGrouped)
+            .listStyle(InsetGroupedListStyle())
             .navigationTitle("Settings")
             .onAppear {
                 checkPermissions()
@@ -132,13 +133,15 @@ struct SettingsView: View {
                 allowedContentTypes: [.json],
                 onCompletion: handleImport
             )
-            .alert("Reset All Data?", isPresented: $showingResetAlert) {
-                Button("Cancel", role: .cancel) { }
-                Button("Reset", role: .destructive) {
-                    resetAllData()
-                }
-            } message: {
-                Text("This will delete all rules and notification history. This cannot be undone.")
+            .alert(isPresented: $showingResetAlert) {
+                Alert(
+                    title: Text("Reset All Data?"),
+                    message: Text("This will delete all rules and notification history. This cannot be undone."),
+                    primaryButton: .destructive(Text("Reset")) {
+                        resetAllData()
+                    },
+                    secondaryButton: .cancel()
+                )
             }
         }
     }
@@ -217,7 +220,7 @@ struct StatusRow: View {
 // MARK: - Export Rules View
 
 struct ExportRulesView: View {
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.presentationMode) var presentationMode
     @StateObject private var ruleStorage = RuleStorage.shared
 
     var body: some View {
@@ -246,11 +249,16 @@ struct ExportRulesView: View {
                     .cornerRadius(12)
                     .padding()
 
-                    ShareLink(item: jsonString) {
+                    Button(action: {
+                        shareText(jsonString)
+                    }) {
                         Label("Share", systemImage: "square.and.arrow.up")
                             .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.accentColor)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
                     }
-                    .buttonStyle(.borderedProminent)
                     .padding(.horizontal)
                 }
 
@@ -261,15 +269,28 @@ struct ExportRulesView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
-                        dismiss()
+                        presentationMode.wrappedValue.dismiss()
                     }
                 }
             }
         }
     }
+
+    private func shareText(_ text: String) {
+        let activityVC = UIActivityViewController(activityItems: [text], applicationActivities: nil)
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first,
+           let rootVC = window.rootViewController {
+            rootVC.present(activityVC, animated: true)
+        }
+    }
 }
 
-#Preview {
-    SettingsView()
-        .environmentObject(AppState.shared)
+#if DEBUG
+struct SettingsView_Previews: PreviewProvider {
+    static var previews: some View {
+        SettingsView()
+            .environmentObject(AppState.shared)
+    }
 }
+#endif

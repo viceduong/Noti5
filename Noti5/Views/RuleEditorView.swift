@@ -1,6 +1,6 @@
 //
 //  RuleEditorView.swift
-//  NotifyFilter
+//  Noti5
 //
 //  Create and edit filter rules
 //
@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct RuleEditorView: View {
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.presentationMode) var presentationMode
 
     let existingRule: FilterRule?
     let onSave: (FilterRule) -> Void
@@ -77,7 +77,7 @@ struct RuleEditorView: View {
                                 Text(op.displayName).tag(op)
                             }
                         }
-                        .pickerStyle(.segmented)
+                        .pickerStyle(SegmentedPickerStyle())
 
                         Text(logicDescription)
                             .font(.caption)
@@ -110,7 +110,7 @@ struct RuleEditorView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Cancel") {
-                        dismiss()
+                        presentationMode.wrappedValue.dismiss()
                     }
                 }
 
@@ -180,7 +180,7 @@ struct RuleEditorView: View {
         }
 
         onSave(rule)
-        dismiss()
+        presentationMode.wrappedValue.dismiss()
     }
 }
 
@@ -197,23 +197,26 @@ struct ConditionRow: View {
                         Text(field.displayName).tag(field)
                     }
                 }
-                .pickerStyle(.menu)
+                .pickerStyle(MenuPickerStyle())
 
                 Picker("Match", selection: $condition.matchType) {
                     ForEach(MatchType.allCases, id: \.self) { match in
                         Text(match.displayName).tag(match)
                     }
                 }
-                .pickerStyle(.menu)
+                .pickerStyle(MenuPickerStyle())
             }
 
             HStack {
                 TextField("Value", text: $condition.value)
-                    .textFieldStyle(.roundedBorder)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
 
-                Toggle("Aa", isOn: $condition.isCaseSensitive)
-                    .toggleStyle(.button)
-                    .font(.caption)
+                Toggle(isOn: $condition.isCaseSensitive) {
+                    Text("Aa")
+                        .font(.caption)
+                }
+                .labelsHidden()
+                .frame(width: 50)
             }
         }
         .padding(.vertical, 4)
@@ -232,17 +235,18 @@ struct QuickAddSenderButton: View {
         Button(action: { showingAlert = true }) {
             Label("Add Sender", systemImage: "person.badge.plus")
         }
-        .alert("Add Sender", isPresented: $showingAlert) {
-            TextField("Sender name", text: $senderName)
-            Button("Cancel", role: .cancel) { }
-            Button("Add") {
-                if !senderName.isEmpty {
-                    onAdd(senderName)
-                    senderName = ""
-                }
-            }
-        } message: {
-            Text("Enter the sender name as it appears in notifications")
+        .alert(isPresented: $showingAlert) {
+            Alert(
+                title: Text("Add Sender"),
+                message: Text("Enter the sender name as it appears in notifications"),
+                primaryButton: .default(Text("Add")) {
+                    if !senderName.isEmpty {
+                        onAdd(senderName)
+                        senderName = ""
+                    }
+                },
+                secondaryButton: .cancel()
+            )
         }
     }
 }
@@ -266,7 +270,7 @@ struct QuickAddAppButton: View {
 }
 
 struct AppPickerView: View {
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.presentationMode) var presentationMode
     let onSelect: (KnownApp) -> Void
 
     var body: some View {
@@ -295,7 +299,7 @@ struct AppPickerView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Cancel") {
-                        dismiss()
+                        presentationMode.wrappedValue.dismiss()
                     }
                 }
             }
@@ -303,6 +307,10 @@ struct AppPickerView: View {
     }
 }
 
-#Preview {
-    RuleEditorView(rule: nil) { _ in }
+#if DEBUG
+struct RuleEditorView_Previews: PreviewProvider {
+    static var previews: some View {
+        RuleEditorView(rule: nil) { _ in }
+    }
 }
+#endif
