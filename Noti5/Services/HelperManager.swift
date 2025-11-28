@@ -57,19 +57,6 @@ class HelperManager {
     func spawnRootHelper() {
         guard let helperPath = Bundle.main.path(forResource: "roothelper", ofType: nil) else {
             print("Noti5: Root helper not found in bundle")
-            DispatchQueue.main.async {
-                AppState.shared.helperRunning = false
-                AppState.shared.isMonitoring = false
-            }
-            return
-        }
-
-        print("Noti5: Found root helper at \(helperPath)")
-
-        // Check if helper binary exists and is executable
-        let fileManager = FileManager.default
-        guard fileManager.fileExists(atPath: helperPath) else {
-            print("Noti5: Root helper file does not exist")
             return
         }
 
@@ -81,30 +68,8 @@ class HelperManager {
             DispatchQueue.main.async {
                 AppState.shared.helperRunning = true
             }
-
-            // Give helper a moment to start, then check PID
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
-                if self?.isHelperRunning == true {
-                    print("Noti5: Helper confirmed running")
-                    AppState.shared.isMonitoring = true
-                } else {
-                    print("Noti5: Helper not running after spawn")
-                    AppState.shared.helperRunning = false
-                }
-            }
         } else {
-            print("Noti5: Failed to spawn root helper, error code: \(result)")
-            // Translate common error codes
-            switch result {
-            case 1: print("Noti5: EPERM - Operation not permitted (missing entitlements?)")
-            case 2: print("Noti5: ENOENT - No such file or directory")
-            case 13: print("Noti5: EACCES - Permission denied")
-            default: print("Noti5: Error code \(result)")
-            }
-            DispatchQueue.main.async {
-                AppState.shared.helperRunning = false
-                AppState.shared.isMonitoring = false
-            }
+            print("Noti5: Failed to spawn root helper, error: \(result)")
         }
     }
 
@@ -119,7 +84,6 @@ class HelperManager {
 
         DispatchQueue.main.async {
             AppState.shared.helperRunning = false
-            AppState.shared.isMonitoring = false
         }
     }
 
@@ -185,7 +149,6 @@ class HelperManager {
         lastHeartbeat = Date()
         DispatchQueue.main.async {
             AppState.shared.helperRunning = true
-            AppState.shared.isMonitoring = true
         }
     }
 
