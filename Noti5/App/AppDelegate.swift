@@ -1,6 +1,6 @@
 //
 //  AppDelegate.swift
-//  NotifyFilter
+//  Noti5
 //
 //  Handles app lifecycle and background tasks
 //
@@ -48,9 +48,9 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         // Request Critical Alert permission (requires entitlement)
         center.requestAuthorization(options: [.alert, .sound, .badge, .criticalAlert]) { granted, error in
             if granted {
-                print("NotifyFilter: Notification permissions granted (including Critical Alerts)")
+                print("Noti5: Notification permissions granted (including Critical Alerts)")
             } else if let error = error {
-                print("NotifyFilter: Notification permission error: \(error)")
+                print("Noti5: Notification permission error: \(error)")
             }
         }
     }
@@ -59,14 +59,14 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
 
     private func registerBackgroundTasks() {
         BGTaskScheduler.shared.register(
-            forTaskWithIdentifier: "com.notifyfilter.refresh",
+            forTaskWithIdentifier: "com.noti5.refresh",
             using: nil
         ) { task in
             self.handleBackgroundRefresh(task: task as! BGAppRefreshTask)
         }
 
         BGTaskScheduler.shared.register(
-            forTaskWithIdentifier: "com.notifyfilter.monitor",
+            forTaskWithIdentifier: "com.noti5.monitor",
             using: nil
         ) { task in
             self.handleBackgroundMonitor(task: task as! BGProcessingTask)
@@ -74,13 +74,13 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     }
 
     private func scheduleBackgroundRefresh() {
-        let request = BGAppRefreshTaskRequest(identifier: "com.notifyfilter.refresh")
+        let request = BGAppRefreshTaskRequest(identifier: "com.noti5.refresh")
         request.earliestBeginDate = Date(timeIntervalSinceNow: 60) // 1 minute
 
         do {
             try BGTaskScheduler.shared.submit(request)
         } catch {
-            print("NotifyFilter: Failed to schedule background refresh: \(error)")
+            print("Noti5: Failed to schedule background refresh: \(error)")
         }
     }
 
@@ -118,7 +118,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
 
         if let bundleId = userInfo["originalBundleId"] as? String {
             // Could open the original app here
-            print("NotifyFilter: User tapped notification from \(bundleId)")
+            print("Noti5: User tapped notification from \(bundleId)")
         }
 
         completionHandler()

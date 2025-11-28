@@ -1,6 +1,6 @@
 //
 //  NotificationMonitor.m
-//  NotifyFilter Root Helper
+//  Noti5 Root Helper
 //
 //  Monitors notification database directory for changes using kqueue
 //
@@ -12,7 +12,7 @@
 #import <fcntl.h>
 
 static NSString *const kNotificationDBPath = @"/var/mobile/Library/DuetExpertCenter/streams/userNotificationEvents/local";
-static NSString *const kProcessedFilePath = @"/var/mobile/Library/NotifyFilter/processed.json";
+static NSString *const kProcessedFilePath = @"/var/mobile/Library/Noti5/processed.json";
 
 @interface NotificationMonitor ()
 

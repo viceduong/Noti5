@@ -5,7 +5,7 @@
     <key>CFBundleDevelopmentRegion</key>
     <string>$(DEVELOPMENT_LANGUAGE)</string>
     <key>CFBundleDisplayName</key>
-    <string>NotifyFilter</string>
+    <string>Noti5</string>
     <key>CFBundleExecutable</key>
     <string>$(EXECUTABLE_NAME)</string>
     <key>CFBundleIdentifier</key>
@@ -42,8 +42,8 @@
     </array>
     <key>BGTaskSchedulerPermittedIdentifiers</key>
     <array>
-        <string>com.notifyfilter.refresh</string>
-        <string>com.notifyfilter.monitor</string>
+        <string>com.noti5.refresh</string>
+        <string>com.noti5.monitor</string>
     </array>
     <key>TSRootBinaries</key>
     <array>

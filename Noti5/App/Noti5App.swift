@@ -1,6 +1,6 @@
 //
-//  NotifyFilterApp.swift
-//  NotifyFilter
+//  Noti5App.swift
+//  Noti5
 //
 //  Main app entry point
 //
@@ -8,7 +8,7 @@
 import SwiftUI
 
 @main
-struct NotifyFilterApp: App {
+struct Noti5App: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var appState = AppState.shared
 

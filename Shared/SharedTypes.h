@@ -1,6 +1,6 @@
 //
 //  SharedTypes.h
-//  NotifyFilter
+//  Noti5
 //
 //  Shared constants and types between main app and root helper
 //
@@ -9,20 +9,20 @@
 #define SharedTypes_h
 
 // Darwin notification names for IPC
-#define NOTIFY_FILTER_MATCHED       "com.notifyfilter.matched"
-#define NOTIFY_FILTER_RULES_UPDATED "com.notifyfilter.rules.updated"
-#define NOTIFY_FILTER_START         "com.notifyfilter.start"
-#define NOTIFY_FILTER_STOP          "com.notifyfilter.stop"
-#define NOTIFY_FILTER_HEARTBEAT     "com.notifyfilter.heartbeat"
+#define NOTI5_MATCHED       "com.noti5.matched"
+#define NOTI5_RULES_UPDATED "com.noti5.rules.updated"
+#define NOTI5_START         "com.noti5.start"
+#define NOTI5_STOP          "com.noti5.stop"
+#define NOTI5_HEARTBEAT     "com.noti5.heartbeat"
 
 // File paths
 #define NOTIFICATION_DB_PATH        "/var/mobile/Library/DuetExpertCenter/streams/userNotificationEvents/local"
-#define SHARED_DATA_PATH            "/var/mobile/Library/NotifyFilter"
-#define RULES_FILE_PATH             "/var/mobile/Library/NotifyFilter/rules.json"
-#define MATCHED_FILE_PATH           "/var/mobile/Library/NotifyFilter/matched.json"
-#define PROCESSED_FILE_PATH         "/var/mobile/Library/NotifyFilter/processed.json"
-#define PID_FILE_PATH               "/var/tmp/notifyfilter.pid"
-#define HEARTBEAT_FILE_PATH         "/var/tmp/notifyfilter.heartbeat"
+#define SHARED_DATA_PATH            "/var/mobile/Library/Noti5"
+#define RULES_FILE_PATH             "/var/mobile/Library/Noti5/rules.json"
+#define MATCHED_FILE_PATH           "/var/mobile/Library/Noti5/matched.json"
+#define PROCESSED_FILE_PATH         "/var/mobile/Library/Noti5/processed.json"
+#define PID_FILE_PATH               "/var/tmp/noti5.pid"
+#define HEARTBEAT_FILE_PATH         "/var/tmp/noti5.heartbeat"
 
 // SEGB file format markers
 #define SEGB_SIGNATURE              "SEGB"

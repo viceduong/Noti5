@@ -1,6 +1,6 @@
 //
 //  HelperManager.swift
-//  NotifyFilter
+//  Noti5
 //
 //  Manages the root helper process lifecycle
 //
@@ -10,11 +10,11 @@ import Foundation
 class HelperManager {
     static let shared = HelperManager()
 
-    private let sharedDataPath = "/var/mobile/Library/NotifyFilter"
-    private let matchedFilePath = "/var/mobile/Library/NotifyFilter/matched.json"
-    private let rulesFilePath = "/var/mobile/Library/NotifyFilter/rules.json"
-    private let pidFilePath = "/var/tmp/notifyfilter.pid"
-    private let heartbeatFilePath = "/var/tmp/notifyfilter.heartbeat"
+    private let sharedDataPath = "/var/mobile/Library/Noti5"
+    private let matchedFilePath = "/var/mobile/Library/Noti5/matched.json"
+    private let rulesFilePath = "/var/mobile/Library/Noti5/rules.json"
+    private let pidFilePath = "/var/tmp/noti5.pid"
+    private let heartbeatFilePath = "/var/tmp/noti5.heartbeat"
 
     private var lastHeartbeat: Date?
     private var heartbeatCheckTimer: Timer?
@@ -56,7 +56,7 @@ class HelperManager {
 
     func spawnRootHelper() {
         guard let helperPath = Bundle.main.path(forResource: "roothelper", ofType: nil) else {
-            print("NotifyFilter: Root helper not found in bundle")
+            print("Noti5: Root helper not found in bundle")
             return
         }
 
@@ -64,12 +64,12 @@ class HelperManager {
         let result = spawnAsRoot(path: helperPath, arguments: ["--daemon"])
 
         if result == 0 {
-            print("NotifyFilter: Root helper spawned successfully")
+            print("Noti5: Root helper spawned successfully")
             DispatchQueue.main.async {
                 AppState.shared.helperRunning = true
             }
         } else {
-            print("NotifyFilter: Failed to spawn root helper, error: \(result)")
+            print("Noti5: Failed to spawn root helper, error: \(result)")
         }
     }
 
@@ -139,7 +139,7 @@ class HelperManager {
 
             if elapsed > 60 {
                 // Helper hasn't sent heartbeat in over a minute, restart it
-                print("NotifyFilter: Helper heartbeat timeout, restarting...")
+                print("Noti5: Helper heartbeat timeout, restarting...")
                 spawnRootHelper()
             }
         }
@@ -159,7 +159,7 @@ class HelperManager {
         encoder.outputFormatting = .prettyPrinted
 
         guard let data = try? encoder.encode(rules) else {
-            print("NotifyFilter: Failed to encode rules")
+            print("Noti5: Failed to encode rules")
             return
         }
 

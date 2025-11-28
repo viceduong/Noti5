@@ -1,4 +1,4 @@
-name: Build NotifyFilter for TrollStore
+name: Build Noti5 for TrollStore
 
 on:
   push:
@@ -33,8 +33,8 @@ jobs:
 
       - name: Build Main App
         run: |
-          xcodebuild -project NotifyFilter.xcodeproj \
-            -scheme NotifyFilter \
+          xcodebuild -project Noti5.xcodeproj \
+            -scheme Noti5 \
             -configuration Release \
             -sdk iphoneos \
             -destination 'generic/platform=iOS' \
@@ -64,13 +64,13 @@ jobs:
       - name: Create App Bundle
         run: |
           # Find the built app
-          APP_PATH=$(find build -name "NotifyFilter.app" -type d | head -1)
+          APP_PATH=$(find build -name "Noti5.app" -type d | head -1)
           echo "Found app at: $APP_PATH"
 
           if [ -z "$APP_PATH" ]; then
             echo "App not found, creating manually..."
-            mkdir -p build/Build/Products/Release-iphoneos/NotifyFilter.app
-            APP_PATH="build/Build/Products/Release-iphoneos/NotifyFilter.app"
+            mkdir -p build/Build/Products/Release-iphoneos/Noti5.app
+            APP_PATH="build/Build/Products/Release-iphoneos/Noti5.app"
           fi
 
           # Copy root helper into app bundle
@@ -78,17 +78,17 @@ jobs:
           chmod 755 "$APP_PATH/roothelper"
 
           # Copy Info.plist if needed
-          cp NotifyFilter/Info.plist "$APP_PATH/" 2>/dev/null || true
+          cp Noti5/Info.plist "$APP_PATH/" 2>/dev/null || true
 
           echo "App bundle contents:"
           ls -la "$APP_PATH/"
 
       - name: Sign with ldid
         run: |
-          APP_PATH=$(find build -name "NotifyFilter.app" -type d | head -1)
+          APP_PATH=$(find build -name "Noti5.app" -type d | head -1)
 
           echo "Signing main app..."
-          ldid -SNotifyFilter/NotifyFilter.entitlements "$APP_PATH/NotifyFilter"
+          ldid -SNoti5/Noti5.entitlements "$APP_PATH/Noti5"
 
           echo "Signing root helper..."
           ldid -SRootHelper/roothelper.entitlements "$APP_PATH/roothelper"
@@ -97,29 +97,29 @@ jobs:
 
       - name: Create TrollStore IPA
         run: |
-          APP_PATH=$(find build -name "NotifyFilter.app" -type d | head -1)
+          APP_PATH=$(find build -name "Noti5.app" -type d | head -1)
 
           # Create Payload structure
           mkdir -p Payload
           cp -r "$APP_PATH" Payload/
 
           # Create .tipa (TrollStore IPA)
-          zip -r NotifyFilter.tipa Payload
+          zip -r Noti5.tipa Payload
 
-          echo "Created NotifyFilter.tipa"
-          ls -la NotifyFilter.tipa
+          echo "Created Noti5.tipa"
+          ls -la Noti5.tipa
 
       - name: Upload TrollStore IPA
         uses: actions/upload-artifact@v4
         with:
-          name: NotifyFilter-TrollStore
-          path: NotifyFilter.tipa
+          name: Noti5-TrollStore
+          path: Noti5.tipa
           retention-days: 30
 
       - name: Create Release (on tag)
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
-          files: NotifyFilter.tipa
+          files: Noti5.tipa
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

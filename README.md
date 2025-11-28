@@ -1,4 +1,4 @@
-# NotifyFilter
+# Noti5
 
 iOS notification filtering app for TrollStore. Filter notifications from other apps and receive Critical Alerts for important messages even when Do Not Disturb is enabled.
 
@@ -23,7 +23,7 @@ iOS notification filtering app for TrollStore. Filter notifications from other a
 
 1. **Create a GitHub repository:**
    ```bash
-   cd NotifyFilter
+   cd Noti5
    git init
    git add .
    git commit -m "Initial commit"
@@ -33,7 +33,7 @@ iOS notification filtering app for TrollStore. Filter notifications from other a
    - Go to [github.com/new](https://github.com/new) and create a new repository
    - Follow GitHub's instructions to push your code:
    ```bash
-   git remote add origin https://github.com/YOUR_USERNAME/NotifyFilter.git
+   git remote add origin https://github.com/YOUR_USERNAME/Noti5.git
    git branch -M main
    git push -u origin main
    ```
@@ -41,7 +41,7 @@ iOS notification filtering app for TrollStore. Filter notifications from other a
 3. **Wait for build:**
    - Go to your repository's "Actions" tab
    - The build will start automatically
-   - Download `NotifyFilter.tipa` from the artifacts when complete
+   - Download `Noti5.tipa` from the artifacts when complete
 
 4. **Install via TrollStore:**
    - Transfer `.tipa` to your iPhone
@@ -55,20 +55,20 @@ iOS notification filtering app for TrollStore. Filter notifications from other a
    ```bash
    make package-trollstore
    ```
-4. Install `packages/NotifyFilter.tipa` via TrollStore
+4. Install `packages/Noti5.tipa` via TrollStore
 
-### Option 2: Using Xcode
+### Option 3: Using Xcode
 
-1. Open `NotifyFilter.xcodeproj` in Xcode
+1. Open `Noti5.xcodeproj` in Xcode
 2. Build for "Generic iOS Device"
 3. Sign the IPA with entitlements using `ldid`:
    ```bash
-   ldid -SNotifyFilter/NotifyFilter.entitlements NotifyFilter.app/NotifyFilter
-   ldid -SRootHelper/roothelper.entitlements NotifyFilter.app/roothelper
+   ldid -SNoti5/Noti5.entitlements Noti5.app/Noti5
+   ldid -SRootHelper/roothelper.entitlements Noti5.app/roothelper
    ```
 4. Create `.tipa` file:
    ```bash
-   zip -r NotifyFilter.tipa Payload/
+   zip -r Noti5.tipa Payload/
    ```
 5. Install via TrollStore
 
@@ -83,7 +83,7 @@ iOS notification filtering app for TrollStore. Filter notifications from other a
 
 ```
 ┌─────────────────────────────────┐
-│     NotifyFilter App (SwiftUI)  │
+│        Noti5 App (SwiftUI)      │
 │  - Rule configuration           │
 │  - Critical Alert sender        │
 │  - Status monitoring            │

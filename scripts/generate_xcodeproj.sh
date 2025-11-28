@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Generate Xcode project for NotifyFilter
+# Generate Xcode project for Noti5
 # This creates a minimal xcodeproj that can build the Swift app
 
 set -e
 
-PROJECT_NAME="NotifyFilter"
+PROJECT_NAME="Noti5"
 PROJECT_DIR="$PROJECT_NAME.xcodeproj"
 
 echo "Generating Xcode project..."
@@ -25,7 +25,7 @@ cat > "$PROJECT_DIR/project.pbxproj" << 'PBXPROJ'
 
 /* Begin PBXBuildFile section */
 		/* App Swift Files */
-		F1001001 /* NotifyFilterApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2001001; };
+		F1001001 /* Noti5App.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2001001; };
 		F1001002 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2001002; };
 		F1001003 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2001003; };
 		/* Models */
@@ -46,9 +46,9 @@ cat > "$PROJECT_DIR/project.pbxproj" << 'PBXPROJ'
 
 /* Begin PBXFileReference section */
 		/* Product */
-		F0000001 /* NotifyFilter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NotifyFilter.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F0000001 /* Noti5.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Noti5.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		/* App Swift Files */
-		F2001001 /* NotifyFilterApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotifyFilterApp.swift; sourceTree = "<group>"; };
+		F2001001 /* Noti5App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Noti5App.swift; sourceTree = "<group>"; };
 		F2001002 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		F2001003 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		/* Models */
@@ -67,7 +67,7 @@ cat > "$PROJECT_DIR/project.pbxproj" << 'PBXPROJ'
 		F2004005 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		/* Config Files */
 		F2005001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		F2005002 /* NotifyFilter.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = NotifyFilter.entitlements; sourceTree = "<group>"; };
+		F2005002 /* Noti5.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Noti5.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,12 +84,12 @@ cat > "$PROJECT_DIR/project.pbxproj" << 'PBXPROJ'
 		F4000001 /* Root */ = {
 			isa = PBXGroup;
 			children = (
-				F4000002 /* NotifyFilter */,
+				F4000002 /* Noti5 */,
 				F4000010 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		F4000002 /* NotifyFilter */ = {
+		F4000002 /* Noti5 */ = {
 			isa = PBXGroup;
 			children = (
 				F4000003 /* App */,
@@ -97,15 +97,15 @@ cat > "$PROJECT_DIR/project.pbxproj" << 'PBXPROJ'
 				F4000005 /* Services */,
 				F4000006 /* Views */,
 				F2005001 /* Info.plist */,
-				F2005002 /* NotifyFilter.entitlements */,
+				F2005002 /* Noti5.entitlements */,
 			);
-			path = NotifyFilter;
+			path = Noti5;
 			sourceTree = "<group>";
 		};
 		F4000003 /* App */ = {
 			isa = PBXGroup;
 			children = (
-				F2001001 /* NotifyFilterApp.swift */,
+				F2001001 /* Noti5App.swift */,
 				F2001002 /* AppDelegate.swift */,
 				F2001003 /* ContentView.swift */,
 			);
@@ -147,7 +147,7 @@ cat > "$PROJECT_DIR/project.pbxproj" << 'PBXPROJ'
 		F4000010 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				F0000001 /* NotifyFilter.app */,
+				F0000001 /* Noti5.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -155,9 +155,9 @@ cat > "$PROJECT_DIR/project.pbxproj" << 'PBXPROJ'
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		F5000001 /* NotifyFilter */ = {
+		F5000001 /* Noti5 */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = F7000001 /* Build configuration list for PBXNativeTarget "NotifyFilter" */;
+			buildConfigurationList = F7000001 /* Build configuration list for PBXNativeTarget "Noti5" */;
 			buildPhases = (
 				F6000001 /* Sources */,
 				F3000001 /* Frameworks */,
@@ -167,9 +167,9 @@ cat > "$PROJECT_DIR/project.pbxproj" << 'PBXPROJ'
 			);
 			dependencies = (
 			);
-			name = NotifyFilter;
-			productName = NotifyFilter;
-			productReference = F0000001 /* NotifyFilter.app */;
+			name = Noti5;
+			productName = Noti5;
+			productReference = F0000001 /* Noti5.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -187,7 +187,7 @@ cat > "$PROJECT_DIR/project.pbxproj" << 'PBXPROJ'
 					};
 				};
 			};
-			buildConfigurationList = F7000002 /* Build configuration list for PBXProject "NotifyFilter" */;
+			buildConfigurationList = F7000002 /* Build configuration list for PBXProject "Noti5" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -200,7 +200,7 @@ cat > "$PROJECT_DIR/project.pbxproj" << 'PBXPROJ'
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				F5000001 /* NotifyFilter */,
+				F5000001 /* Noti5 */,
 			);
 		};
 /* End PBXProject section */
@@ -220,7 +220,7 @@ cat > "$PROJECT_DIR/project.pbxproj" << 'PBXPROJ'
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F1001001 /* NotifyFilterApp.swift in Sources */,
+				F1001001 /* Noti5App.swift in Sources */,
 				F1001002 /* AppDelegate.swift in Sources */,
 				F1001003 /* ContentView.swift in Sources */,
 				F1002001 /* FilterRule.swift in Sources */,
@@ -364,14 +364,14 @@ cat > "$PROJECT_DIR/project.pbxproj" << 'PBXPROJ'
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = NotifyFilter/NotifyFilter.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Noti5/Noti5.entitlements;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = NotifyFilter/Info.plist;
+				INFOPLIST_FILE = Noti5/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -381,7 +381,7 @@ cat > "$PROJECT_DIR/project.pbxproj" << 'PBXPROJ'
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.notifyfilter.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.noti5.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -395,14 +395,14 @@ cat > "$PROJECT_DIR/project.pbxproj" << 'PBXPROJ'
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = NotifyFilter/NotifyFilter.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Noti5/Noti5.entitlements;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = NotifyFilter/Info.plist;
+				INFOPLIST_FILE = Noti5/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -412,7 +412,7 @@ cat > "$PROJECT_DIR/project.pbxproj" << 'PBXPROJ'
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.notifyfilter.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.noti5.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -424,7 +424,7 @@ cat > "$PROJECT_DIR/project.pbxproj" << 'PBXPROJ'
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		F7000001 /* Build configuration list for PBXNativeTarget "NotifyFilter" */ = {
+		F7000001 /* Build configuration list for PBXNativeTarget "Noti5" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F9000003 /* Debug */,
@@ -433,7 +433,7 @@ cat > "$PROJECT_DIR/project.pbxproj" << 'PBXPROJ'
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F7000002 /* Build configuration list for PBXProject "NotifyFilter" */ = {
+		F7000002 /* Build configuration list for PBXProject "Noti5" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				F9000001 /* Debug */,
@@ -451,7 +451,7 @@ PBXPROJ
 # Create scheme
 mkdir -p "$PROJECT_DIR/xcshareddata/xcschemes"
 
-cat > "$PROJECT_DIR/xcshareddata/xcschemes/NotifyFilter.xcscheme" << 'SCHEME'
+cat > "$PROJECT_DIR/xcshareddata/xcschemes/Noti5.xcscheme" << 'SCHEME'
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
    LastUpgradeVersion = "1520"
@@ -469,9 +469,9 @@ cat > "$PROJECT_DIR/xcshareddata/xcschemes/NotifyFilter.xcscheme" << 'SCHEME'
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "F5000001"
-               BuildableName = "NotifyFilter.app"
-               BlueprintName = "NotifyFilter"
-               ReferencedContainer = "container:NotifyFilter.xcodeproj">
+               BuildableName = "Noti5.app"
+               BlueprintName = "Noti5"
+               ReferencedContainer = "container:Noti5.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>

@@ -1,6 +1,6 @@
 //
 //  main.m
-//  NotifyFilter Root Helper
+//  Noti5 Root Helper
 //
 //  Background daemon that monitors notification database
 //
@@ -15,19 +15,19 @@
 #import "RuleMatcher.h"
 
 // Shared paths
-static NSString *const kSharedDataPath = @"/var/mobile/Library/NotifyFilter";
-static NSString *const kRulesFilePath = @"/var/mobile/Library/NotifyFilter/rules.json";
-static NSString *const kMatchedFilePath = @"/var/mobile/Library/NotifyFilter/matched.json";
-static NSString *const kProcessedFilePath = @"/var/mobile/Library/NotifyFilter/processed.json";
-static NSString *const kPidFilePath = @"/var/tmp/notifyfilter.pid";
-static NSString *const kHeartbeatFilePath = @"/var/tmp/notifyfilter.heartbeat";
+static NSString *const kSharedDataPath = @"/var/mobile/Library/Noti5";
+static NSString *const kRulesFilePath = @"/var/mobile/Library/Noti5/rules.json";
+static NSString *const kMatchedFilePath = @"/var/mobile/Library/Noti5/matched.json";
+static NSString *const kProcessedFilePath = @"/var/mobile/Library/Noti5/processed.json";
+static NSString *const kPidFilePath = @"/var/tmp/noti5.pid";
+static NSString *const kHeartbeatFilePath = @"/var/tmp/noti5.heartbeat";
 
 // Darwin notification names
-static NSString *const kNotifyMatched = @"com.notifyfilter.matched";
-static NSString *const kNotifyRulesUpdated = @"com.notifyfilter.rules.updated";
-static NSString *const kNotifyStart = @"com.notifyfilter.start";
-static NSString *const kNotifyStop = @"com.notifyfilter.stop";
-static NSString *const kNotifyHeartbeat = @"com.notifyfilter.heartbeat";
+static NSString *const kNotifyMatched = @"com.noti5.matched";
+static NSString *const kNotifyRulesUpdated = @"com.noti5.rules.updated";
+static NSString *const kNotifyStart = @"com.noti5.start";
+static NSString *const kNotifyStop = @"com.noti5.stop";
+static NSString *const kNotifyHeartbeat = @"com.noti5.heartbeat";
 
 // Global state
 static BOOL shouldRun = YES;
@@ -37,7 +37,7 @@ static RuleMatcher *ruleMatcher = nil;
 #pragma mark - Signal Handlers
 
 void handleSignal(int signal) {
-    NSLog(@"NotifyFilter Helper: Received signal %d, shutting down...", signal);
+    NSLog(@"Noti5 Helper: Received signal %d, shutting down...", signal);
     shouldRun = NO;
 
     // Clean up PID file
@@ -85,14 +85,14 @@ void setupDarwinNotifications(void) {
     // Listen for rules update
     notify_register_dispatch([kNotifyRulesUpdated UTF8String], &token,
         dispatch_get_main_queue(), ^(int t) {
-            NSLog(@"NotifyFilter Helper: Rules updated, reloading...");
+            NSLog(@"Noti5 Helper: Rules updated, reloading...");
             [ruleMatcher reloadRules];
         });
 
     // Listen for stop command
     notify_register_dispatch([kNotifyStop UTF8String], &token,
         dispatch_get_main_queue(), ^(int t) {
-            NSLog(@"NotifyFilter Helper: Stop command received");
+            NSLog(@"Noti5 Helper: Stop command received");
             shouldRun = NO;
             CFRunLoopStop(CFRunLoopGetMain());
         });
@@ -131,7 +131,7 @@ void startHeartbeat(void) {
 #pragma mark - Notification Handling
 
 void handleMatchedNotification(NSDictionary *notification, NSString *ruleName) {
-    NSLog(@"NotifyFilter Helper: Matched notification from %@ - %@",
+    NSLog(@"Noti5 Helper: Matched notification from %@ - %@",
           notification[@"bundleId"], notification[@"title"]);
 
     // Read existing matched notifications
@@ -167,11 +167,11 @@ void handleMatchedNotification(NSDictionary *notification, NSString *ruleName) {
 
 int main(int argc, char *argv[]) {
     @autoreleasepool {
-        NSLog(@"NotifyFilter Helper: Starting (uid=%d, pid=%d)", getuid(), getpid());
+        NSLog(@"Noti5 Helper: Starting (uid=%d, pid=%d)", getuid(), getpid());
 
         // Check if running as root
         if (getuid() != 0) {
-            NSLog(@"NotifyFilter Helper: ERROR - Must run as root");
+            NSLog(@"Noti5 Helper: ERROR - Must run as root");
             return 1;
         }
 
@@ -210,7 +210,7 @@ int main(int argc, char *argv[]) {
         // Start monitoring
         [monitor startMonitoring];
 
-        NSLog(@"NotifyFilter Helper: Running...");
+        NSLog(@"Noti5 Helper: Running...");
 
         // Run main loop
         if (isDaemon) {
@@ -220,7 +220,7 @@ int main(int argc, char *argv[]) {
             [[NSRunLoop currentRunLoop] run];
         }
 
-        NSLog(@"NotifyFilter Helper: Shutting down...");
+        NSLog(@"Noti5 Helper: Shutting down...");
 
         // Cleanup
         [monitor stopMonitoring];

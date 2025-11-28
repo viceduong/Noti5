@@ -1,6 +1,6 @@
 //
 //  SEGBParser.m
-//  NotifyFilter Root Helper
+//  Noti5 Root Helper
 //
 //  Parses iOS SEGB notification database files
 //

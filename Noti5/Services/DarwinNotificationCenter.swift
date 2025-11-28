@@ -1,6 +1,6 @@
 //
 //  DarwinNotificationCenter.swift
-//  NotifyFilter
+//  Noti5
 //
 //  Darwin notifications for IPC with root helper
 //
@@ -11,11 +11,11 @@ class DarwinNotificationCenter {
     static let shared = DarwinNotificationCenter()
 
     // Notification names
-    static let matchedNotification = "com.notifyfilter.matched"
-    static let rulesUpdatedNotification = "com.notifyfilter.rules.updated"
-    static let startNotification = "com.notifyfilter.start"
-    static let stopNotification = "com.notifyfilter.stop"
-    static let heartbeatNotification = "com.notifyfilter.heartbeat"
+    static let matchedNotification = "com.noti5.matched"
+    static let rulesUpdatedNotification = "com.noti5.rules.updated"
+    static let startNotification = "com.noti5.start"
+    static let stopNotification = "com.noti5.stop"
+    static let heartbeatNotification = "com.noti5.heartbeat"
 
     private var observerTokens: [String: Int32] = [:]
     private var callbacks: [String: () -> Void] = [:]
@@ -82,7 +82,7 @@ class DarwinNotificationCenter {
     func startListening() {
         // Listen for matched notifications from helper
         observe(Self.matchedNotification) {
-            print("NotifyFilter: Received matched notification from helper")
+            print("Noti5: Received matched notification from helper")
             HelperManager.shared.checkPendingNotifications()
         }
 

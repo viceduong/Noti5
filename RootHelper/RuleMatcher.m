@@ -1,6 +1,6 @@
 //
 //  RuleMatcher.m
-//  NotifyFilter Root Helper
+//  Noti5 Root Helper
 //
 //  Evaluates notifications against user-defined filter rules
 //
