@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Critical Alerts - bypass Do Not Disturb -->
+    <key>com.apple.developer.usernotifications.critical-alerts</key>
+    <true/>
+
+    <!-- Escape sandbox for IPC with root helper -->
+    <key>com.apple.private.security.no-sandbox</key>
+    <true/>
+
+    <!-- Platform app status for TrollStore -->
+    <key>platform-application</key>
+    <true/>
+
+    <!-- Spawn root processes via posix_spawn -->
+    <key>com.apple.private.persona-mgmt</key>
+    <true/>
+
+    <!-- Access app data containers -->
+    <key>com.apple.private.security.storage.AppDataContainers</key>
+    <true/>
+</dict>
+</plist>

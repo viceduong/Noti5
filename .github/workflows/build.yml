@@ -1,0 +1,125 @@
+name: Build NotifyFilter for TrollStore
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  build:
+    runs-on: macos-14  # macOS Sonoma with Xcode 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Select Xcode version
+        run: sudo xcode-select -s /Applications/Xcode_15.2.app/Contents/Developer
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Install ldid
+        run: |
+          brew install ldid
+
+      - name: Create Xcode project
+        run: |
+          # Generate xcodeproj using script
+          chmod +x scripts/generate_xcodeproj.sh
+          ./scripts/generate_xcodeproj.sh
+
+      - name: Build Main App
+        run: |
+          xcodebuild -project NotifyFilter.xcodeproj \
+            -scheme NotifyFilter \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            DEVELOPMENT_TEAM="" \
+            ONLY_ACTIVE_ARCH=NO
+
+      - name: Build Root Helper
+        run: |
+          cd RootHelper
+
+          # Compile Objective-C files
+          clang -fobjc-arc -fmodules \
+            -target arm64-apple-ios14.0 \
+            -isysroot $(xcrun --sdk iphoneos --show-sdk-path) \
+            -framework Foundation \
+            -framework CoreFoundation \
+            -o roothelper \
+            main.m SEGBParser.m NotificationMonitor.m RuleMatcher.m
+
+          echo "Root helper built successfully"
+          ls -la roothelper
+
+      - name: Create App Bundle
+        run: |
+          # Find the built app
+          APP_PATH=$(find build -name "NotifyFilter.app" -type d | head -1)
+          echo "Found app at: $APP_PATH"
+
+          if [ -z "$APP_PATH" ]; then
+            echo "App not found, creating manually..."
+            mkdir -p build/Build/Products/Release-iphoneos/NotifyFilter.app
+            APP_PATH="build/Build/Products/Release-iphoneos/NotifyFilter.app"
+          fi
+
+          # Copy root helper into app bundle
+          cp RootHelper/roothelper "$APP_PATH/"
+          chmod 755 "$APP_PATH/roothelper"
+
+          # Copy Info.plist if needed
+          cp NotifyFilter/Info.plist "$APP_PATH/" 2>/dev/null || true
+
+          echo "App bundle contents:"
+          ls -la "$APP_PATH/"
+
+      - name: Sign with ldid
+        run: |
+          APP_PATH=$(find build -name "NotifyFilter.app" -type d | head -1)
+
+          echo "Signing main app..."
+          ldid -SNotifyFilter/NotifyFilter.entitlements "$APP_PATH/NotifyFilter"
+
+          echo "Signing root helper..."
+          ldid -SRootHelper/roothelper.entitlements "$APP_PATH/roothelper"
+
+          echo "Signing complete"
+
+      - name: Create TrollStore IPA
+        run: |
+          APP_PATH=$(find build -name "NotifyFilter.app" -type d | head -1)
+
+          # Create Payload structure
+          mkdir -p Payload
+          cp -r "$APP_PATH" Payload/
+
+          # Create .tipa (TrollStore IPA)
+          zip -r NotifyFilter.tipa Payload
+
+          echo "Created NotifyFilter.tipa"
+          ls -la NotifyFilter.tipa
+
+      - name: Upload TrollStore IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: NotifyFilter-TrollStore
+          path: NotifyFilter.tipa
+          retention-days: 30
+
+      - name: Create Release (on tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: NotifyFilter.tipa
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

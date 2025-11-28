@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- No sandbox - full filesystem access -->
+    <key>com.apple.private.security.no-sandbox</key>
+    <true/>
+
+    <!-- Platform app status -->
+    <key>platform-application</key>
+    <true/>
+
+    <!-- Access app data containers -->
+    <key>com.apple.private.security.storage.AppDataContainers</key>
+    <true/>
+
+    <!-- Read system files -->
+    <key>com.apple.rootless.storage.localcomputerdatavault</key>
+    <true/>
+</dict>
+</plist>
