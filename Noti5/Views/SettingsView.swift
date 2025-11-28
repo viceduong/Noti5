@@ -44,6 +44,10 @@ struct SettingsView: View {
                         Button("Open Settings") {
                             openSettings()
                         }
+
+                        Text("Enable notifications and Critical Alerts in iOS Settings > Noti5")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
                     }
                 }
 
