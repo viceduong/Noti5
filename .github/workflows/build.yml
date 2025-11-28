@@ -15,8 +15,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Fix line endings
+        run: |
+          # Convert Windows line endings to Unix
+          find . -name "*.sh" -exec sed -i '' 's/\r$//' {} \;
+
       - name: List available Xcode versions
-        run: ls -la /Applications/ | grep Xcode
+        run: ls -la /Applications/ | grep Xcode || echo "No Xcode found with grep"
 
       - name: Select Xcode version
         run: |
@@ -33,6 +38,9 @@ jobs:
             sudo xcode-select -s /Applications/Xcode_15.0.app/Contents/Developer
           elif [ -d "/Applications/Xcode.app" ]; then
             sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+          else
+            echo "No Xcode found!"
+            exit 1
           fi
 
       - name: Show Xcode version
@@ -44,18 +52,18 @@ jobs:
       - name: Create Xcode project
         run: |
           chmod +x scripts/generate_xcodeproj.sh
-          ./scripts/generate_xcodeproj.sh
+          bash scripts/generate_xcodeproj.sh
 
       - name: List project structure
         run: |
           echo "=== Project structure ==="
-          ls -la
+          ls -la || true
           echo "=== Noti5 folder ==="
-          ls -la Noti5/
+          ls -la Noti5/ || echo "Noti5 folder not found"
           echo "=== Noti5/App folder ==="
-          ls -la Noti5/App/
+          ls -la Noti5/App/ || echo "Noti5/App folder not found"
           echo "=== Generated xcodeproj ==="
-          ls -la Noti5.xcodeproj/
+          ls -la Noti5.xcodeproj/ || echo "Noti5.xcodeproj not found"
 
       - name: Build Main App
         run: |
@@ -69,15 +77,7 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \
             DEVELOPMENT_TEAM="" \
-            ONLY_ACTIVE_ARCH=NO \
-            2>&1 | tee build.log
-
-          # Check if build succeeded
-          if [ ${PIPESTATUS[0]} -ne 0 ]; then
-            echo "=== Build failed. Last 100 lines of log: ==="
-            tail -100 build.log
-            exit 1
-          fi
+            ONLY_ACTIVE_ARCH=NO
 
       - name: Build Root Helper
         run: |
