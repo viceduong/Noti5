@@ -1,6 +1,6 @@
 //
 //  CriticalAlertSender.swift
-//  NotifyFilter
+//  Noti5
 //
 //  Sends Critical Alert notifications that bypass Do Not Disturb
 //
@@ -26,7 +26,7 @@ class CriticalAlertSender {
 
         if let lastSent = recentNotifications[key],
            Date().timeIntervalSince(lastSent) < deduplicationWindow {
-            print("NotifyFilter: Skipping duplicate notification")
+            print("Noti5: Skipping duplicate notification")
             return
         }
 
@@ -59,7 +59,7 @@ class CriticalAlertSender {
         content.threadIdentifier = bundleId
 
         // Create request
-        let identifier = "notifyfilter-\(UUID().uuidString)"
+        let identifier = "noti5-\(UUID().uuidString)"
         let request = UNNotificationRequest(
             identifier: identifier,
             content: content,
@@ -69,9 +69,9 @@ class CriticalAlertSender {
         // Send
         notificationCenter.add(request) { [weak self] error in
             if let error = error {
-                print("NotifyFilter: Failed to send critical alert: \(error)")
+                print("Noti5: Failed to send critical alert: \(error)")
             } else {
-                print("NotifyFilter: Critical alert sent for \(title)")
+                print("Noti5: Critical alert sent for \(title)")
 
                 // Track for deduplication
                 self?.recentNotifications[key] = Date()
@@ -122,8 +122,8 @@ class CriticalAlertSender {
     func sendTestAlert() {
         sendAlert(
             title: "Test Notification",
-            body: "This is a test critical alert from NotifyFilter. It should play sound even in Do Not Disturb mode.",
-            bundleId: "com.notifyfilter.test",
+            body: "This is a test critical alert from Noti5. It should play sound even in Do Not Disturb mode.",
+            bundleId: "com.noti5.test",
             ruleName: "Test Rule"
         )
     }

@@ -1,6 +1,6 @@
 //
 //  AppsListView.swift
-//  NotifyFilter
+//  Noti5
 //
 //  Quick per-app settings and filtering
 //
@@ -13,25 +13,45 @@ struct AppsListView: View {
 
     var body: some View {
         NavigationView {
-            List {
-                ForEach(AppCategory.allCases, id: \.self) { category in
-                    if let apps = filteredApps(for: category), !apps.isEmpty {
-                        Section(header: Text(category.rawValue)) {
-                            ForEach(apps) { app in
-                                AppRow(
-                                    app: app,
-                                    rules: rulesForApp(app.bundleId),
-                                    onQuickAction: { action in
-                                        handleQuickAction(action, for: app)
-                                    }
-                                )
+            VStack(spacing: 0) {
+                // Search bar (iOS 14 compatible)
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.secondary)
+                    TextField("Search apps", text: $searchText)
+                        .textFieldStyle(PlainTextFieldStyle())
+                    if !searchText.isEmpty {
+                        Button(action: { searchText = "" }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+                .padding(8)
+                .background(Color(.systemGray6))
+                .cornerRadius(10)
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+
+                List {
+                    ForEach(AppCategory.allCases, id: \.self) { category in
+                        if let apps = filteredApps(for: category), !apps.isEmpty {
+                            Section(header: Text(category.rawValue)) {
+                                ForEach(apps) { app in
+                                    AppRow(
+                                        app: app,
+                                        rules: rulesForApp(app.bundleId),
+                                        onQuickAction: { action in
+                                            handleQuickAction(action, for: app)
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
                 }
+                .listStyle(InsetGroupedListStyle())
             }
-            .listStyle(.insetGrouped)
-            .searchable(text: $searchText, prompt: "Search apps")
             .navigationTitle("Apps")
         }
     }
@@ -145,9 +165,10 @@ struct AppRow: View {
                 if !rules.isEmpty {
                     Divider()
 
-                    Button(role: .destructive, action: { onQuickAction(.removeRules) }) {
+                    Button(action: { onQuickAction(.removeRules) }) {
                         Label("Remove Rules", systemImage: "trash")
                     }
+                    .foregroundColor(.red)
                 }
             } label: {
                 Image(systemName: "ellipsis.circle")
@@ -188,6 +209,10 @@ struct AppRow: View {
     }
 }
 
-#Preview {
-    AppsListView()
+#if DEBUG
+struct AppsListView_Previews: PreviewProvider {
+    static var previews: some View {
+        AppsListView()
+    }
 }
+#endif

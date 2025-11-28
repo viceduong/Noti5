@@ -1,6 +1,6 @@
 //
 //  RulesListView.swift
-//  NotifyFilter
+//  Noti5
 //
 //  List and manage filter rules
 //
@@ -67,7 +67,7 @@ struct RulesListView: View {
                     }
                 }
             }
-            .listStyle(.insetGrouped)
+            .listStyle(InsetGroupedListStyle())
             .navigationTitle("Rules")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -186,6 +186,10 @@ struct RuleRow: View {
     }
 }
 
-#Preview {
-    RulesListView()
+#if DEBUG
+struct RulesListView_Previews: PreviewProvider {
+    static var previews: some View {
+        RulesListView()
+    }
 }
+#endif

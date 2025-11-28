@@ -1,6 +1,6 @@
 //
 //  NotificationRecord.swift
-//  NotifyFilter
+//  Noti5
 //
 //  Represents a parsed notification from the SEGB database
 //

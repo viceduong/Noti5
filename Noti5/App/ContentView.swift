@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  NotifyFilter
+//  Noti5
 //
 //  Main tab view container
 //
@@ -35,7 +35,11 @@ struct ContentView: View {
     }
 }
 
-#Preview {
-    ContentView()
-        .environmentObject(AppState.shared)
+#if DEBUG
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+            .environmentObject(AppState.shared)
+    }
 }
+#endif

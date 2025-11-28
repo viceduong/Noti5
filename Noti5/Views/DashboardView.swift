@@ -1,6 +1,6 @@
 //
 //  DashboardView.swift
-//  NotifyFilter
+//  Noti5
 //
 //  Main dashboard showing monitoring status and recent activity
 //
@@ -36,7 +36,7 @@ struct DashboardView: View {
                 }
                 .padding()
             }
-            .navigationTitle("NotifyFilter")
+            .navigationTitle("Noti5")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
@@ -293,12 +293,16 @@ struct NotificationHistoryView: View {
                     .listRowBackground(Color.clear)
             }
         }
-        .listStyle(.plain)
+        .listStyle(PlainListStyle())
         .navigationTitle("Notification History")
     }
 }
 
-#Preview {
-    DashboardView()
-        .environmentObject(AppState.shared)
+#if DEBUG
+struct DashboardView_Previews: PreviewProvider {
+    static var previews: some View {
+        DashboardView()
+            .environmentObject(AppState.shared)
+    }
 }
+#endif

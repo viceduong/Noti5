@@ -1,6 +1,6 @@
 //
 //  FilterRule.swift
-//  NotifyFilter
+//  Noti5
 //
 //  Data models for filtering rules
 //
