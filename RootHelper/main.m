@@ -108,7 +108,7 @@ void startHeartbeat(void) {
     // Send heartbeat every 30 seconds
     dispatch_source_t timer = dispatch_source_create(
         DISPATCH_SOURCE_TYPE_TIMER, 0, 0,
-        dispatch_get_main_queue()  // Use main queue to keep run loop alive
+        dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)
     );
 
     dispatch_source_set_timer(timer, DISPATCH_TIME_NOW, 30 * NSEC_PER_SEC, 0);
@@ -116,32 +116,16 @@ void startHeartbeat(void) {
     dispatch_source_set_event_handler(timer, ^{
         // Touch heartbeat file
         NSString *timestamp = [[NSDate date] description];
-        NSError *error;
-        BOOL success = [timestamp writeToFile:kHeartbeatFilePath
-                                   atomically:YES
-                                     encoding:NSUTF8StringEncoding
-                                        error:&error];
-        if (!success) {
-            NSLog(@"Noti5 Helper: Failed to write heartbeat: %@", error);
-        }
-
-        // Post Darwin notification
-        postDarwinNotification(kNotifyHeartbeat);
-        NSLog(@"Noti5 Helper: Heartbeat sent");
-    });
-
-    dispatch_resume(timer);
-
-    // Send first heartbeat immediately
-    dispatch_async(dispatch_get_main_queue(), ^{
-        NSString *timestamp = [[NSDate date] description];
         [timestamp writeToFile:kHeartbeatFilePath
                     atomically:YES
                       encoding:NSUTF8StringEncoding
                          error:nil];
+
+        // Post Darwin notification
         postDarwinNotification(kNotifyHeartbeat);
-        NSLog(@"Noti5 Helper: Initial heartbeat sent");
     });
+
+    dispatch_resume(timer);
 }
 
 #pragma mark - Notification Handling
@@ -187,9 +171,8 @@ int main(int argc, char *argv[]) {
 
         // Check if running as root
         if (getuid() != 0) {
-            NSLog(@"Noti5 Helper: WARNING - Not running as root (uid=%d)", getuid());
-            NSLog(@"Noti5 Helper: Some functionality may be limited");
-            // Don't exit - try to continue anyway for testing
+            NSLog(@"Noti5 Helper: ERROR - Must run as root");
+            return 1;
         }
 
         // Check for daemon flag
@@ -201,54 +184,33 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        NSLog(@"Noti5 Helper: Daemon mode: %@", isDaemon ? @"YES" : @"NO");
-
         // Setup
         setupSignalHandlers();
         writePidFile();
         setupSharedDirectory();
 
-        NSLog(@"Noti5 Helper: Basic setup complete");
+        // Initialize components
+        ruleMatcher = [[RuleMatcher alloc] initWithRulesPath:kRulesFilePath];
+        monitor = [[NotificationMonitor alloc] init];
 
-        @try {
-            // Initialize components
-            ruleMatcher = [[RuleMatcher alloc] initWithRulesPath:kRulesFilePath];
-            NSLog(@"Noti5 Helper: RuleMatcher initialized with %lu rules", (unsigned long)[ruleMatcher ruleCount]);
+        // Set callback for matched notifications
+        monitor.matchCallback = ^(NSDictionary *notification) {
+            NSString *matchedRule = [ruleMatcher evaluateNotification:notification];
+            if (matchedRule) {
+                handleMatchedNotification(notification, matchedRule);
+            }
+        };
 
-            monitor = [[NotificationMonitor alloc] init];
-            NSLog(@"Noti5 Helper: NotificationMonitor initialized");
+        // Setup Darwin notification listeners
+        setupDarwinNotifications();
 
-            // Set callback for matched notifications
-            monitor.matchCallback = ^(NSDictionary *notification) {
-                @try {
-                    NSString *matchedRule = [ruleMatcher evaluateNotification:notification];
-                    if (matchedRule) {
-                        handleMatchedNotification(notification, matchedRule);
-                    }
-                } @catch (NSException *exception) {
-                    NSLog(@"Noti5 Helper: Exception in match callback: %@", exception);
-                }
-            };
+        // Start heartbeat
+        startHeartbeat();
 
-            // Setup Darwin notification listeners
-            setupDarwinNotifications();
-            NSLog(@"Noti5 Helper: Darwin notifications setup complete");
+        // Start monitoring
+        [monitor startMonitoring];
 
-            // Start heartbeat
-            startHeartbeat();
-            NSLog(@"Noti5 Helper: Heartbeat started");
-
-            // Start monitoring
-            [monitor startMonitoring];
-            NSLog(@"Noti5 Helper: Monitoring started");
-
-        } @catch (NSException *exception) {
-            NSLog(@"Noti5 Helper: Exception during initialization: %@", exception);
-            NSLog(@"Noti5 Helper: Reason: %@", exception.reason);
-            NSLog(@"Noti5 Helper: Will continue with heartbeat only");
-        }
-
-        NSLog(@"Noti5 Helper: Running main loop...");
+        NSLog(@"Noti5 Helper: Running...");
 
         // Run main loop
         if (isDaemon) {
@@ -261,9 +223,7 @@ int main(int argc, char *argv[]) {
         NSLog(@"Noti5 Helper: Shutting down...");
 
         // Cleanup
-        if (monitor) {
-            [monitor stopMonitoring];
-        }
+        [monitor stopMonitoring];
         [[NSFileManager defaultManager] removeItemAtPath:kPidFilePath error:nil];
 
         return 0;

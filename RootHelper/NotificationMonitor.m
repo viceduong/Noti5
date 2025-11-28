@@ -102,41 +102,35 @@ static NSString *const kProcessedFilePath = @"/var/mobile/Library/Noti5/processe
 
     NSLog(@"NotificationMonitor: Starting monitoring at %@", kNotificationDBPath);
 
-    // Check if database path exists
-    NSFileManager *fm = [NSFileManager defaultManager];
-    if (![fm fileExistsAtPath:kNotificationDBPath]) {
-        NSLog(@"NotificationMonitor: Database path does not exist yet: %@", kNotificationDBPath);
-        NSLog(@"NotificationMonitor: Will retry via polling...");
-    }
-
     // Find stream directories
     NSArray *streams = [self findStreamDirectories];
     if (streams.count == 0) {
-        NSLog(@"NotificationMonitor: No stream directories found yet, will poll for them");
-    } else {
-        // Setup kqueue for existing directories
-        _kqueue = kqueue();
-        if (_kqueue < 0) {
-            NSLog(@"NotificationMonitor: Failed to create kqueue, falling back to polling only");
-        } else {
-            // Monitor each stream directory
-            for (NSString *streamPath in streams) {
-                [self addKqueueWatch:streamPath];
-            }
-
-            // Start kqueue monitoring in background
-            [self startKqueueMonitoring];
-        }
-
-        // Initial scan
-        [self scanNow];
+        NSLog(@"NotificationMonitor: No stream directories found!");
+        return;
     }
 
-    // Always start polling fallback (even if kqueue works, and especially if db doesn't exist yet)
+    // Setup kqueue
+    _kqueue = kqueue();
+    if (_kqueue < 0) {
+        NSLog(@"NotificationMonitor: Failed to create kqueue");
+        return;
+    }
+
+    // Monitor each stream directory
+    for (NSString *streamPath in streams) {
+        [self addKqueueWatch:streamPath];
+    }
+
+    // Start kqueue monitoring in background
+    [self startKqueueMonitoring];
+
+    // Also add a polling fallback every 10 seconds
     [self startPollingFallback];
 
     _monitoring = YES;
-    NSLog(@"NotificationMonitor: Monitoring started (polling active)");
+
+    // Initial scan
+    [self scanNow];
 }
 
 - (void)stopMonitoring {
