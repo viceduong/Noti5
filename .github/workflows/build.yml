@@ -102,17 +102,28 @@ jobs:
           echo "Found app at: $APP_PATH"
 
           if [ -z "$APP_PATH" ]; then
-            echo "App not found, creating manually..."
-            mkdir -p build/Build/Products/Release-iphoneos/Noti5.app
-            APP_PATH="build/Build/Products/Release-iphoneos/Noti5.app"
+            echo "ERROR: App bundle not found! Build may have failed."
+            echo "Searching for any .app bundles..."
+            find build -name "*.app" -type d || echo "No .app bundles found"
+            echo "Build directory contents:"
+            find build -type f -name "*" | head -50 || echo "Build directory empty"
+            exit 1
           fi
+
+          # Verify the main binary exists
+          if [ ! -f "$APP_PATH/Noti5" ]; then
+            echo "ERROR: Main binary Noti5 not found in app bundle!"
+            echo "App bundle contents:"
+            ls -la "$APP_PATH/"
+            exit 1
+          fi
+
+          echo "Main binary found: $APP_PATH/Noti5"
+          file "$APP_PATH/Noti5"
 
           # Copy root helper into app bundle
           cp RootHelper/roothelper "$APP_PATH/"
           chmod 755 "$APP_PATH/roothelper"
-
-          # Copy Info.plist if needed
-          cp Noti5/Info.plist "$APP_PATH/" 2>/dev/null || true
 
           echo "App bundle contents:"
           ls -la "$APP_PATH/"
@@ -121,11 +132,24 @@ jobs:
         run: |
           APP_PATH=$(find build -name "Noti5.app" -type d | head -1)
 
-          echo "Signing main app..."
+          echo "=== Checking binaries before signing ==="
+          echo "Main app binary:"
+          file "$APP_PATH/Noti5"
+          lipo -info "$APP_PATH/Noti5" || echo "lipo failed"
+
+          echo "Root helper binary:"
+          file "$APP_PATH/roothelper"
+          lipo -info "$APP_PATH/roothelper" || echo "lipo failed"
+
+          echo "=== Signing main app ==="
           ldid -SNoti5/Noti5.entitlements "$APP_PATH/Noti5"
 
-          echo "Signing root helper..."
+          echo "=== Signing root helper ==="
           ldid -SRootHelper/roothelper.entitlements "$APP_PATH/roothelper"
+
+          echo "=== Verifying signatures ==="
+          ldid -e "$APP_PATH/Noti5" || echo "No entitlements found in main app"
+          ldid -e "$APP_PATH/roothelper" || echo "No entitlements found in root helper"
 
           echo "Signing complete"
 
@@ -137,11 +161,25 @@ jobs:
           mkdir -p Payload
           cp -r "$APP_PATH" Payload/
 
+          # Verify Payload contents
+          echo "=== Payload/Noti5.app contents ==="
+          ls -la Payload/Noti5.app/
+
+          echo "=== Verifying main binary ==="
+          file Payload/Noti5.app/Noti5
+
+          echo "=== Verifying Info.plist ==="
+          cat Payload/Noti5.app/Info.plist | head -20
+
           # Create .tipa (TrollStore IPA)
           zip -r Noti5.tipa Payload
 
           echo "Created Noti5.tipa"
           ls -la Noti5.tipa
+
+          # Verify IPA contents
+          echo "=== IPA contents ==="
+          unzip -l Noti5.tipa | head -30
 
       - name: Upload TrollStore IPA
         uses: actions/upload-artifact@v4
