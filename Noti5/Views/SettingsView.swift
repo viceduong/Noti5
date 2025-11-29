@@ -16,6 +16,7 @@ struct SettingsView: View {
     @State private var showingExportSheet = false
     @State private var showingImportPicker = false
     @State private var showingResetAlert = false
+    @State private var showingDebugLog = false
 
     var body: some View {
         NavigationView {
@@ -91,6 +92,13 @@ struct SettingsView: View {
                     }
                 }
 
+                // Debug Section
+                Section(header: Text("Debug")) {
+                    Button(action: { showingDebugLog = true }) {
+                        Label("View Helper Debug Log", systemImage: "doc.text.magnifyingglass")
+                    }
+                }
+
                 // Danger Zone
                 Section(header: Text("Danger Zone")) {
                     Button(action: { showingResetAlert = true }) {
@@ -142,6 +150,9 @@ struct SettingsView: View {
                     },
                     secondaryButton: .cancel()
                 )
+            }
+            .sheet(isPresented: $showingDebugLog) {
+                DebugLogView()
             }
         }
     }
@@ -282,6 +293,51 @@ struct ExportRulesView: View {
            let window = windowScene.windows.first,
            let rootVC = window.rootViewController {
             rootVC.present(activityVC, animated: true)
+        }
+    }
+}
+
+// MARK: - Debug Log View
+
+struct DebugLogView: View {
+    @Environment(\.presentationMode) var presentationMode
+    @State private var logContent: String = "Loading..."
+
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                Text(logContent)
+                    .font(.system(.caption, design: .monospaced))
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .navigationTitle("Debug Log")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Clear") {
+                        HelperManager.shared.clearDebugLog()
+                        logContent = "Log cleared"
+                    }
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                }
+            }
+            .onAppear {
+                loadLog()
+            }
+        }
+    }
+
+    private func loadLog() {
+        DispatchQueue.global(qos: .userInitiated).async {
+            let log = HelperManager.shared.loadDebugLog()
+            DispatchQueue.main.async {
+                self.logContent = log.isEmpty ? "No debug log available" : log
+            }
         }
     }
 }

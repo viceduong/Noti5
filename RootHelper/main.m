@@ -20,6 +20,7 @@ static NSString *const kRulesFilePath = @"/var/mobile/Library/Noti5/rules.json";
 static NSString *const kMatchedFilePath = @"/var/mobile/Library/Noti5/matched.json";
 static NSString *const kProcessedFilePath = @"/var/mobile/Library/Noti5/processed.json";
 static NSString *const kRecentFilePath = @"/var/mobile/Library/Noti5/recent.json";
+static NSString *const kDebugFilePath = @"/var/mobile/Library/Noti5/debug.log";
 static NSString *const kPidFilePath = @"/var/tmp/noti5.pid";
 static NSString *const kHeartbeatFilePath = @"/var/tmp/noti5.heartbeat";
 
@@ -38,6 +39,28 @@ static NSString *const kNotifyHeartbeat = @"com.noti5.heartbeat";
 static BOOL shouldRun = YES;
 static NotificationMonitor *monitor = nil;
 static RuleMatcher *ruleMatcher = nil;
+
+#pragma mark - Debug Logging
+
+void writeDebugLog(NSString *message) {
+    static NSFileHandle *debugHandle = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        [[NSFileManager defaultManager] createFileAtPath:kDebugFilePath contents:nil attributes:nil];
+        debugHandle = [NSFileHandle fileHandleForWritingAtPath:kDebugFilePath];
+    });
+
+    NSString *timestamp = [[NSDate date] description];
+    NSString *logLine = [NSString stringWithFormat:@"[%@] %@\n", timestamp, message];
+
+    @synchronized(debugHandle) {
+        [debugHandle seekToEndOfFile];
+        [debugHandle writeData:[logLine dataUsingEncoding:NSUTF8StringEncoding]];
+        [debugHandle synchronizeFile];
+    }
+
+    NSLog(@"Noti5 Helper: %@", message);
+}
 
 #pragma mark - Signal Handlers
 
@@ -237,8 +260,53 @@ int main(int argc, char *argv[]) {
         ruleMatcher = [[RuleMatcher alloc] initWithRulesPath:kRulesFilePath];
         monitor = [[NotificationMonitor alloc] init];
 
+        // Debug: Log database path info
+        writeDebugLog(@"=== Noti5 Helper Starting ===");
+        NSDictionary *systemVersion = [NSDictionary dictionaryWithContentsOfFile:@"/System/Library/CoreServices/SystemVersion.plist"];
+        writeDebugLog([NSString stringWithFormat:@"iOS Version: %@", systemVersion[@"ProductVersion"] ?: @"unknown"]);
+        writeDebugLog([NSString stringWithFormat:@"Database path: %@", [monitor databasePath]]);
+
+        NSFileManager *fm = [NSFileManager defaultManager];
+        BOOL isDir = NO;
+        BOOL dbExists = [fm fileExistsAtPath:[monitor databasePath] isDirectory:&isDir];
+        writeDebugLog([NSString stringWithFormat:@"Database path exists: %@, isDirectory: %@",
+                      dbExists ? @"YES" : @"NO", isDir ? @"YES" : @"NO"]);
+
+        if (dbExists && isDir) {
+            NSError *error;
+            NSArray *contents = [fm contentsOfDirectoryAtPath:[monitor databasePath] error:&error];
+            writeDebugLog([NSString stringWithFormat:@"Database contents: %@", contents]);
+            if (error) {
+                writeDebugLog([NSString stringWithFormat:@"Error listing directory: %@", error]);
+            }
+
+            // List files in first subdirectory (stream)
+            for (NSString *item in contents) {
+                NSString *subPath = [[monitor databasePath] stringByAppendingPathComponent:item];
+                BOOL subIsDir;
+                if ([fm fileExistsAtPath:subPath isDirectory:&subIsDir] && subIsDir) {
+                    NSArray *subContents = [fm contentsOfDirectoryAtPath:subPath error:nil];
+                    writeDebugLog([NSString stringWithFormat:@"  Stream '%@' files: %@", item, subContents]);
+                }
+            }
+        }
+
+        // Check alternative paths
+        NSArray *altPaths = @[
+            @"/var/mobile/Library/DuetExpertCenter",
+            @"/var/mobile/Library/DuetExpertCenter/streams",
+            @"/private/var/mobile/Library/DuetExpertCenter/streams/userNotificationEvents/local"
+        ];
+        for (NSString *path in altPaths) {
+            BOOL exists = [fm fileExistsAtPath:path isDirectory:&isDir];
+            writeDebugLog([NSString stringWithFormat:@"Alt path '%@': exists=%@, isDir=%@",
+                          path, exists ? @"YES" : @"NO", isDir ? @"YES" : @"NO"]);
+        }
+
         // Set callback for all notifications
         monitor.matchCallback = ^(NSDictionary *notification) {
+            writeDebugLog([NSString stringWithFormat:@"CALLBACK: Got notification from %@", notification[@"bundleId"]]);
+
             // Save ALL notifications to recent (for rule creation in main app)
             saveRecentNotification(notification);
 
@@ -256,9 +324,12 @@ int main(int argc, char *argv[]) {
         startHeartbeat();
 
         // Start monitoring
+        writeDebugLog(@"Starting notification monitoring...");
         [monitor startMonitoring];
+        writeDebugLog([NSString stringWithFormat:@"Monitor isMonitoring: %@", [monitor isMonitoring] ? @"YES" : @"NO"]);
 
         NSLog(@"Noti5 Helper: Running...");
+        writeDebugLog(@"=== Helper started successfully ===");
 
         // Run main loop
         if (isDaemon) {

@@ -14,6 +14,7 @@ class HelperManager {
     private let matchedFilePath = "/var/mobile/Library/Noti5/matched.json"
     private let rulesFilePath = "/var/mobile/Library/Noti5/rules.json"
     private let recentNotificationsPath = "/var/mobile/Library/Noti5/recent.json"
+    private let debugLogPath = "/var/mobile/Library/Noti5/debug.log"
     private let pidFilePath = "/var/tmp/noti5.pid"
     private let heartbeatFilePath = "/var/tmp/noti5.heartbeat"
 
@@ -218,6 +219,16 @@ class HelperManager {
         decoder.dateDecodingStrategy = .iso8601
 
         return (try? decoder.decode([RecentNotification].self, from: data)) ?? []
+    }
+
+    // MARK: - Debug Log
+
+    func loadDebugLog() -> String {
+        return (try? String(contentsOfFile: debugLogPath, encoding: .utf8)) ?? "No debug log available"
+    }
+
+    func clearDebugLog() {
+        try? "".write(toFile: debugLogPath, atomically: true, encoding: .utf8)
     }
 }
 
