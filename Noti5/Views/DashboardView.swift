@@ -19,7 +19,7 @@ struct DashboardView: View {
                 VStack(spacing: 20) {
                     // Status Card
                     StatusCard(
-                        isMonitoring: appState.isMonitoring,
+                        isMonitoring: appState.helperRunning,
                         helperRunning: appState.helperRunning
                     )
 
