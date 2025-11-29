@@ -52,8 +52,8 @@ struct SettingsView: View {
                     HStack {
                         Text("Monitor Status")
                         Spacer()
-                        Text(appState.isMonitoring ? "Active" : "Inactive")
-                            .foregroundColor(appState.isMonitoring ? .green : .secondary)
+                        Text(appState.helperRunning ? "Active" : "Inactive")
+                            .foregroundColor(appState.helperRunning ? .green : .secondary)
                     }
 
                     Button(action: restartHelper) {
