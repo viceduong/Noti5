@@ -29,7 +29,10 @@ struct DashboardView: View {
                         matchedCount: appState.matchedCount
                     )
 
-                    // Recent Activity
+                    // Recent Notifications (for rule creation)
+                    RecentNotificationsSection()
+
+                    // Recent Activity (matched notifications)
                     RecentActivitySection(
                         notifications: appState.matchedNotifications
                     )
@@ -171,6 +174,49 @@ struct StatCard: View {
         .padding()
         .background(Color(.secondarySystemBackground))
         .cornerRadius(12)
+    }
+}
+
+// MARK: - Recent Notifications Section (for rule creation)
+
+struct RecentNotificationsSection: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Recent Notifications")
+                    .font(.headline)
+
+                Spacer()
+
+                NavigationLink(destination: RecentNotificationsView()) {
+                    HStack(spacing: 4) {
+                        Text("View All")
+                            .font(.subheadline)
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                    }
+                }
+            }
+
+            VStack(spacing: 8) {
+                Image(systemName: "bell.badge")
+                    .font(.title)
+                    .foregroundColor(.accentColor)
+
+                Text("Create rules from notifications")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+
+                Text("Tap to browse recent notifications and easily create filter rules")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 20)
+            .background(Color(.secondarySystemBackground))
+            .cornerRadius(12)
+        }
     }
 }
 

@@ -64,6 +64,7 @@ extension KnownApp {
         // Messaging
         KnownApp(id: "net.whatsapp.WhatsApp", name: "WhatsApp", category: .messaging, iconSystemName: "message.fill"),
         KnownApp(id: "ph.telegra.Telegraph", name: "Telegram", category: .messaging, iconSystemName: "paperplane.fill"),
+        KnownApp(id: "app.swiftgram.ios", name: "Swiftgram", category: .messaging, iconSystemName: "paperplane.fill"),
         KnownApp(id: "com.apple.MobileSMS", name: "iMessage", category: .messaging, iconSystemName: "message.fill"),
         KnownApp(id: "org.whispersystems.signal", name: "Signal", category: .messaging, iconSystemName: "lock.fill"),
         KnownApp(id: "com.facebook.Messenger", name: "Messenger", category: .messaging, iconSystemName: "message.circle.fill"),

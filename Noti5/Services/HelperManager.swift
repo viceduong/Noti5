@@ -13,6 +13,7 @@ class HelperManager {
     private let sharedDataPath = "/var/mobile/Library/Noti5"
     private let matchedFilePath = "/var/mobile/Library/Noti5/matched.json"
     private let rulesFilePath = "/var/mobile/Library/Noti5/rules.json"
+    private let recentNotificationsPath = "/var/mobile/Library/Noti5/recent.json"
     private let pidFilePath = "/var/tmp/noti5.pid"
     private let heartbeatFilePath = "/var/tmp/noti5.heartbeat"
 
@@ -205,6 +206,19 @@ class HelperManager {
         // Clear the file
         try? "[]".write(toFile: matchedFilePath, atomically: true, encoding: .utf8)
     }
+
+    // MARK: - Recent Notifications (for rule creation)
+
+    func loadRecentNotifications() -> [RecentNotification] {
+        guard let data = try? Data(contentsOf: URL(fileURLWithPath: recentNotificationsPath)) else {
+            return []
+        }
+
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+
+        return (try? decoder.decode([RecentNotification].self, from: data)) ?? []
+    }
 }
 
 // MARK: - Helper Data Types
@@ -215,6 +229,16 @@ private struct MatchedNotificationData: Codable {
     let subtitle: String?
     let body: String
     let matchedRuleName: String
+    let timestamp: Date
+}
+
+struct RecentNotification: Codable, Identifiable {
+    var id: String { guid }
+    let guid: String
+    let bundleId: String
+    let title: String
+    let subtitle: String?
+    let body: String
     let timestamp: Date
 }
 

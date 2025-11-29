@@ -19,8 +19,13 @@ static NSString *const kSharedDataPath = @"/var/mobile/Library/Noti5";
 static NSString *const kRulesFilePath = @"/var/mobile/Library/Noti5/rules.json";
 static NSString *const kMatchedFilePath = @"/var/mobile/Library/Noti5/matched.json";
 static NSString *const kProcessedFilePath = @"/var/mobile/Library/Noti5/processed.json";
+static NSString *const kRecentFilePath = @"/var/mobile/Library/Noti5/recent.json";
 static NSString *const kPidFilePath = @"/var/tmp/noti5.pid";
 static NSString *const kHeartbeatFilePath = @"/var/tmp/noti5.heartbeat";
+
+// Recent notifications storage (for rule creation in main app)
+static NSMutableArray *recentNotifications = nil;
+static const NSUInteger kMaxRecentNotifications = 50;
 
 // Darwin notification names
 static NSString *const kNotifyMatched = @"com.noti5.matched";
@@ -128,6 +133,45 @@ void startHeartbeat(void) {
     dispatch_resume(timer);
 }
 
+#pragma mark - Recent Notifications
+
+void saveRecentNotification(NSDictionary *notification) {
+    if (!recentNotifications) {
+        // Load existing recent notifications
+        recentNotifications = [NSMutableArray array];
+        NSData *existingData = [NSData dataWithContentsOfFile:kRecentFilePath];
+        if (existingData) {
+            NSArray *existing = [NSJSONSerialization JSONObjectWithData:existingData
+                                                                options:0
+                                                                  error:nil];
+            if (existing) {
+                [recentNotifications addObjectsFromArray:existing];
+            }
+        }
+    }
+
+    // Add notification with timestamp
+    NSMutableDictionary *entry = [notification mutableCopy];
+    entry[@"timestamp"] = [[NSISO8601DateFormatter new] stringFromDate:[NSDate date]];
+
+    // Insert at beginning (newest first)
+    [recentNotifications insertObject:entry atIndex:0];
+
+    // Keep only last N notifications
+    while (recentNotifications.count > kMaxRecentNotifications) {
+        [recentNotifications removeLastObject];
+    }
+
+    // Save to file
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:recentNotifications
+                                                       options:NSJSONWritingPrettyPrinted
+                                                         error:nil];
+    [jsonData writeToFile:kRecentFilePath atomically:YES];
+
+    NSLog(@"Noti5 Helper: Saved recent notification from %@ (total: %lu)",
+          notification[@"bundleId"], (unsigned long)recentNotifications.count);
+}
+
 #pragma mark - Notification Handling
 
 void handleMatchedNotification(NSDictionary *notification, NSString *ruleName) {
@@ -193,8 +237,12 @@ int main(int argc, char *argv[]) {
         ruleMatcher = [[RuleMatcher alloc] initWithRulesPath:kRulesFilePath];
         monitor = [[NotificationMonitor alloc] init];
 
-        // Set callback for matched notifications
+        // Set callback for all notifications
         monitor.matchCallback = ^(NSDictionary *notification) {
+            // Save ALL notifications to recent (for rule creation in main app)
+            saveRecentNotification(notification);
+
+            // Then evaluate against rules
             NSString *matchedRule = [ruleMatcher evaluateNotification:notification];
             if (matchedRule) {
                 handleMatchedNotification(notification, matchedRule);
