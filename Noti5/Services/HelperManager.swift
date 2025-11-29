@@ -149,6 +149,7 @@ class HelperManager {
         lastHeartbeat = Date()
         DispatchQueue.main.async {
             AppState.shared.helperRunning = true
+            AppState.shared.isMonitoring = true
         }
     }
 
