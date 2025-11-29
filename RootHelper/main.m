@@ -291,16 +291,72 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        // Check alternative paths
+        // Check alternative paths and explore structure
         NSArray *altPaths = @[
             @"/var/mobile/Library/DuetExpertCenter",
             @"/var/mobile/Library/DuetExpertCenter/streams",
-            @"/private/var/mobile/Library/DuetExpertCenter/streams/userNotificationEvents/local"
+            @"/var/mobile/Library/DuetExpertCenter/streams/userNotificationEvents",
+            @"/var/mobile/Library/DuetExpertCenter/streams/userNotificationEvents/local",
+            @"/private/var/mobile/Library/DuetExpertCenter/streams/userNotificationEvents/local",
+            @"/var/mobile/Library/Duet",
+            @"/var/mobile/Library/Duet/Notifications"
         ];
         for (NSString *path in altPaths) {
             BOOL exists = [fm fileExistsAtPath:path isDirectory:&isDir];
-            writeDebugLog([NSString stringWithFormat:@"Alt path '%@': exists=%@, isDir=%@",
+            writeDebugLog([NSString stringWithFormat:@"Path '%@': exists=%@, isDir=%@",
                           path, exists ? @"YES" : @"NO", isDir ? @"YES" : @"NO"]);
+
+            // If it exists and is a directory, list contents
+            if (exists && isDir) {
+                NSArray *contents = [fm contentsOfDirectoryAtPath:path error:nil];
+                writeDebugLog([NSString stringWithFormat:@"  Contents: %@", contents]);
+            }
+            // If it exists but is a file, show file info
+            else if (exists && !isDir) {
+                NSDictionary *attrs = [fm attributesOfItemAtPath:path error:nil];
+                writeDebugLog([NSString stringWithFormat:@"  File size: %@, type: %@",
+                              attrs[NSFileSize], attrs[NSFileType]]);
+            }
+        }
+
+        // Explore DuetExpertCenter structure
+        writeDebugLog(@"=== Exploring /var/mobile/Library/DuetExpertCenter ===");
+        NSString *duetBase = @"/var/mobile/Library/DuetExpertCenter";
+        if ([fm fileExistsAtPath:duetBase isDirectory:&isDir] && isDir) {
+            NSArray *duetContents = [fm contentsOfDirectoryAtPath:duetBase error:nil];
+            writeDebugLog([NSString stringWithFormat:@"DuetExpertCenter contents: %@", duetContents]);
+
+            // Check streams subdirectory
+            NSString *streamsPath = [duetBase stringByAppendingPathComponent:@"streams"];
+            if ([fm fileExistsAtPath:streamsPath isDirectory:&isDir] && isDir) {
+                NSArray *streamContents = [fm contentsOfDirectoryAtPath:streamsPath error:nil];
+                writeDebugLog([NSString stringWithFormat:@"streams/ contents: %@", streamContents]);
+
+                // List all stream directories
+                for (NSString *stream in streamContents) {
+                    NSString *streamPath = [streamsPath stringByAppendingPathComponent:stream];
+                    if ([fm fileExistsAtPath:streamPath isDirectory:&isDir] && isDir) {
+                        NSArray *streamFiles = [fm contentsOfDirectoryAtPath:streamPath error:nil];
+                        writeDebugLog([NSString stringWithFormat:@"  streams/%@/ contents: %@", stream, streamFiles]);
+                    }
+                }
+            }
+        }
+
+        // Also check for BulletinBoard (older iOS)
+        writeDebugLog(@"=== Checking BulletinBoard paths ===");
+        NSArray *bbPaths = @[
+            @"/var/mobile/Library/BulletinBoard",
+            @"/var/mobile/Library/SpringBoard/PushStore"
+        ];
+        for (NSString *path in bbPaths) {
+            BOOL exists = [fm fileExistsAtPath:path isDirectory:&isDir];
+            writeDebugLog([NSString stringWithFormat:@"Path '%@': exists=%@, isDir=%@",
+                          path, exists ? @"YES" : @"NO", isDir ? @"YES" : @"NO"]);
+            if (exists && isDir) {
+                NSArray *contents = [fm contentsOfDirectoryAtPath:path error:nil];
+                writeDebugLog([NSString stringWithFormat:@"  Contents: %@", contents]);
+            }
         }
 
         // Set callback for all notifications
