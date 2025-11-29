@@ -42,6 +42,7 @@ cat > "$PROJECT_DIR/project.pbxproj" << 'PBXPROJ'
 		F1004003 /* RuleEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2004003; };
 		F1004004 /* AppsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2004004; };
 		F1004005 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2004005; };
+		F1004006 /* RecentNotificationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2004006; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -65,6 +66,7 @@ cat > "$PROJECT_DIR/project.pbxproj" << 'PBXPROJ'
 		F2004003 /* RuleEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuleEditorView.swift; sourceTree = "<group>"; };
 		F2004004 /* AppsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppsListView.swift; sourceTree = "<group>"; };
 		F2004005 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		F2004006 /* RecentNotificationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentNotificationsView.swift; sourceTree = "<group>"; };
 		/* Config Files */
 		F2005001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		F2005002 /* Noti5.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Noti5.entitlements; sourceTree = "<group>"; };
@@ -140,6 +142,7 @@ cat > "$PROJECT_DIR/project.pbxproj" << 'PBXPROJ'
 				F2004003 /* RuleEditorView.swift */,
 				F2004004 /* AppsListView.swift */,
 				F2004005 /* SettingsView.swift */,
+				F2004006 /* RecentNotificationsView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -234,6 +237,7 @@ cat > "$PROJECT_DIR/project.pbxproj" << 'PBXPROJ'
 				F1004003 /* RuleEditorView.swift in Sources */,
 				F1004004 /* AppsListView.swift in Sources */,
 				F1004005 /* SettingsView.swift in Sources */,
+				F1004006 /* RecentNotificationsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
