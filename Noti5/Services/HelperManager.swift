@@ -49,6 +49,9 @@ class HelperManager {
     func ensureHelperRunning() {
         if !isHelperRunning {
             spawnRootHelper()
+        } else {
+            // Helper already running, check heartbeat file to set monitoring status
+            checkHelperHealth()
         }
 
         startHeartbeatMonitoring()
@@ -137,9 +140,17 @@ class HelperManager {
            let modDate = attrs[.modificationDate] as? Date {
             let elapsed = Date().timeIntervalSince(modDate)
 
-            if elapsed > 60 {
+            if elapsed < 60 {
+                // Heartbeat file is recent - helper is alive and monitoring
+                DispatchQueue.main.async {
+                    AppState.shared.isMonitoring = true
+                }
+            } else {
                 // Helper hasn't sent heartbeat in over a minute, restart it
                 print("Noti5: Helper heartbeat timeout, restarting...")
+                DispatchQueue.main.async {
+                    AppState.shared.isMonitoring = false
+                }
                 spawnRootHelper()
             }
         }
