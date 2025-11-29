@@ -385,8 +385,27 @@ int main(int argc, char *argv[]) {
         writeDebugLog(@"=== Searching for notification databases ===");
         NSArray *searchPaths = @[
             @"/var/mobile/Library/Biome/streams",
-            @"/private/var/db/biome/streams"
+            @"/private/var/db/biome/streams",
+            @"/private/var/db/biome/streams/restricted",
+            @"/var/db/biome/streams",
+            @"/var/db/biome/streams/restricted"
         ];
+
+        // First check if base biome paths exist
+        NSArray *biomeBases = @[
+            @"/private/var/db/biome",
+            @"/var/db/biome",
+            @"/private/var/db"
+        ];
+        for (NSString *base in biomeBases) {
+            BOOL baseExists = [fm fileExistsAtPath:base isDirectory:&isDir];
+            writeDebugLog([NSString stringWithFormat:@"Biome base '%@': exists=%@, isDir=%@",
+                          base, baseExists ? @"YES" : @"NO", isDir ? @"YES" : @"NO"]);
+            if (baseExists && isDir) {
+                NSArray *baseContents = [fm contentsOfDirectoryAtPath:base error:nil];
+                writeDebugLog([NSString stringWithFormat:@"  Contents: %@", baseContents]);
+            }
+        }
         for (NSString *searchPath in searchPaths) {
             if ([fm fileExistsAtPath:searchPath isDirectory:&isDir] && isDir) {
                 NSArray *streams = [fm contentsOfDirectoryAtPath:searchPath error:nil];
