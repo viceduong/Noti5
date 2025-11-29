@@ -302,6 +302,7 @@ struct ExportRulesView: View {
 struct DebugLogView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var logContent: String = "Loading..."
+    @State private var showingShareSheet = false
 
     var body: some View {
         NavigationView {
@@ -310,14 +311,24 @@ struct DebugLogView: View {
                     .font(.system(.caption, design: .monospaced))
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .textSelection(.enabled)
             }
             .navigationTitle("Debug Log")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Clear") {
-                        HelperManager.shared.clearDebugLog()
-                        logContent = "Log cleared"
+                    Menu {
+                        Button(action: { copyToClipboard() }) {
+                            Label("Copy All", systemImage: "doc.on.doc")
+                        }
+                        Button(action: { shareLog() }) {
+                            Label("Share", systemImage: "square.and.arrow.up")
+                        }
+                        Button(role: .destructive, action: { clearLog() }) {
+                            Label("Clear Log", systemImage: "trash")
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
                     }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -339,6 +350,24 @@ struct DebugLogView: View {
                 self.logContent = log.isEmpty ? "No debug log available" : log
             }
         }
+    }
+
+    private func copyToClipboard() {
+        UIPasteboard.general.string = logContent
+    }
+
+    private func shareLog() {
+        let activityVC = UIActivityViewController(activityItems: [logContent], applicationActivities: nil)
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first,
+           let rootVC = window.rootViewController {
+            rootVC.present(activityVC, animated: true)
+        }
+    }
+
+    private func clearLog() {
+        HelperManager.shared.clearDebugLog()
+        logContent = "Log cleared"
     }
 }
 
