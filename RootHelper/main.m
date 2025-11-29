@@ -472,6 +472,45 @@ int main(int argc, char *argv[]) {
                 writeDebugLog([NSString stringWithFormat:@"  Contents: %@", contents]);
             }
         }
+
+        // Deep explore UserNotifications directory
+        writeDebugLog(@"=== Deep exploring /var/mobile/Library/UserNotifications ===");
+        NSString *userNotifPath = @"/var/mobile/Library/UserNotifications";
+        if ([fm fileExistsAtPath:userNotifPath isDirectory:&isDir] && isDir) {
+            NSArray *level1 = [fm contentsOfDirectoryAtPath:userNotifPath error:nil];
+            writeDebugLog([NSString stringWithFormat:@"UserNotifications/ contents: %@", level1]);
+
+            for (NSString *item1 in level1) {
+                NSString *path1 = [userNotifPath stringByAppendingPathComponent:item1];
+                BOOL isDir1;
+                if ([fm fileExistsAtPath:path1 isDirectory:&isDir1]) {
+                    NSDictionary *attrs = [fm attributesOfItemAtPath:path1 error:nil];
+                    writeDebugLog([NSString stringWithFormat:@"  %@: isDir=%@, size=%@, type=%@",
+                                  item1, isDir1 ? @"YES" : @"NO", attrs[NSFileSize], attrs[NSFileType]]);
+
+                    if (isDir1) {
+                        NSArray *level2 = [fm contentsOfDirectoryAtPath:path1 error:nil];
+                        writeDebugLog([NSString stringWithFormat:@"    Contents: %@", level2]);
+
+                        // Go one more level deep
+                        for (NSString *item2 in level2) {
+                            NSString *path2 = [path1 stringByAppendingPathComponent:item2];
+                            BOOL isDir2;
+                            if ([fm fileExistsAtPath:path2 isDirectory:&isDir2]) {
+                                NSDictionary *attrs2 = [fm attributesOfItemAtPath:path2 error:nil];
+                                writeDebugLog([NSString stringWithFormat:@"      %@: isDir=%@, size=%@",
+                                              item2, isDir2 ? @"YES" : @"NO", attrs2[NSFileSize]]);
+
+                                if (isDir2) {
+                                    NSArray *level3 = [fm contentsOfDirectoryAtPath:path2 error:nil];
+                                    writeDebugLog([NSString stringWithFormat:@"        Contents: %@", level3]);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
         for (NSString *searchPath in searchPaths) {
             if ([fm fileExistsAtPath:searchPath isDirectory:&isDir] && isDir) {
                 NSArray *streams = [fm contentsOfDirectoryAtPath:searchPath error:nil];
