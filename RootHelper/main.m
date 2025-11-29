@@ -343,11 +343,19 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        // Also check for BulletinBoard (older iOS)
-        writeDebugLog(@"=== Checking BulletinBoard paths ===");
+        // Also check for BulletinBoard and other notification paths
+        writeDebugLog(@"=== Checking all potential notification paths ===");
         NSArray *bbPaths = @[
             @"/var/mobile/Library/BulletinBoard",
-            @"/var/mobile/Library/SpringBoard/PushStore"
+            @"/var/mobile/Library/SpringBoard",
+            @"/var/mobile/Library/SpringBoard/PushStore",
+            @"/var/mobile/Library/UserNotifications",
+            @"/var/mobile/Library/Preferences",
+            @"/var/mobile/Library/Duet",
+            @"/var/mobile/Library/Biome",
+            @"/var/mobile/Library/Biome/streams",
+            @"/private/var/db/biome",
+            @"/private/var/db/biome/streams"
         ];
         for (NSString *path in bbPaths) {
             BOOL exists = [fm fileExistsAtPath:path isDirectory:&isDir];
@@ -356,6 +364,50 @@ int main(int argc, char *argv[]) {
             if (exists && isDir) {
                 NSArray *contents = [fm contentsOfDirectoryAtPath:path error:nil];
                 writeDebugLog([NSString stringWithFormat:@"  Contents: %@", contents]);
+
+                // Look for notification-related subdirectories
+                for (NSString *item in contents) {
+                    NSString *lower = [item lowercaseString];
+                    if ([lower containsString:@"notif"] || [lower containsString:@"bulletin"] ||
+                        [lower containsString:@"push"] || [lower containsString:@"user"]) {
+                        NSString *subPath = [path stringByAppendingPathComponent:item];
+                        writeDebugLog([NSString stringWithFormat:@"  -> Found interesting: %@", subPath]);
+                        if ([fm fileExistsAtPath:subPath isDirectory:&isDir] && isDir) {
+                            NSArray *subContents = [fm contentsOfDirectoryAtPath:subPath error:nil];
+                            writeDebugLog([NSString stringWithFormat:@"     Contents: %@", subContents]);
+                        }
+                    }
+                }
+            }
+        }
+
+        // Search for SEGB files in common locations
+        writeDebugLog(@"=== Searching for notification databases ===");
+        NSArray *searchPaths = @[
+            @"/var/mobile/Library/Biome/streams",
+            @"/private/var/db/biome/streams"
+        ];
+        for (NSString *searchPath in searchPaths) {
+            if ([fm fileExistsAtPath:searchPath isDirectory:&isDir] && isDir) {
+                NSArray *streams = [fm contentsOfDirectoryAtPath:searchPath error:nil];
+                for (NSString *stream in streams) {
+                    NSString *lower = [stream lowercaseString];
+                    if ([lower containsString:@"notif"] || [lower containsString:@"user"]) {
+                        writeDebugLog([NSString stringWithFormat:@"Found potential notification stream: %@/%@", searchPath, stream]);
+                        NSString *streamPath = [searchPath stringByAppendingPathComponent:stream];
+                        if ([fm fileExistsAtPath:streamPath isDirectory:&isDir] && isDir) {
+                            NSArray *streamContents = [fm contentsOfDirectoryAtPath:streamPath error:nil];
+                            writeDebugLog([NSString stringWithFormat:@"  Contents: %@", streamContents]);
+
+                            // Check local subdirectory
+                            NSString *localPath = [streamPath stringByAppendingPathComponent:@"local"];
+                            if ([fm fileExistsAtPath:localPath isDirectory:&isDir] && isDir) {
+                                NSArray *localContents = [fm contentsOfDirectoryAtPath:localPath error:nil];
+                                writeDebugLog([NSString stringWithFormat:@"  local/ Contents: %@", localContents]);
+                            }
+                        }
+                    }
+                }
             }
         }
 
