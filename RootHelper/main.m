@@ -264,9 +264,18 @@ int main(int argc, char *argv[]) {
         writeDebugLog(@"=== Noti5 Helper Starting ===");
         NSDictionary *systemVersion = [NSDictionary dictionaryWithContentsOfFile:@"/System/Library/CoreServices/SystemVersion.plist"];
         writeDebugLog([NSString stringWithFormat:@"iOS Version: %@", systemVersion[@"ProductVersion"] ?: @"unknown"]);
+        writeDebugLog([NSString stringWithFormat:@"UID: %d, EUID: %d", getuid(), geteuid()]);
         writeDebugLog([NSString stringWithFormat:@"Database path: %@", [monitor databasePath]]);
 
         NSFileManager *fm = [NSFileManager defaultManager];
+
+        // List ALL contents of /var/mobile/Library to find what exists
+        writeDebugLog(@"=== Full /var/mobile/Library listing ===");
+        NSArray *allMobileLib = [fm contentsOfDirectoryAtPath:@"/var/mobile/Library" error:nil];
+        writeDebugLog([NSString stringWithFormat:@"Total items: %lu", (unsigned long)allMobileLib.count]);
+        for (NSString *item in allMobileLib) {
+            writeDebugLog([NSString stringWithFormat:@"  %@", item]);
+        }
         BOOL isDir = NO;
         BOOL dbExists = [fm fileExistsAtPath:[monitor databasePath] isDirectory:&isDir];
         writeDebugLog([NSString stringWithFormat:@"Database path exists: %@, isDirectory: %@",
@@ -404,6 +413,63 @@ int main(int argc, char *argv[]) {
             if (baseExists && isDir) {
                 NSArray *baseContents = [fm contentsOfDirectoryAtPath:base error:nil];
                 writeDebugLog([NSString stringWithFormat:@"  Contents: %@", baseContents]);
+            }
+        }
+
+        // Broad search - check /var/mobile/Library for anything notification-related
+        writeDebugLog(@"=== Broad search in /var/mobile/Library ===");
+        NSString *mobileLib = @"/var/mobile/Library";
+        NSArray *mobileLibContents = [fm contentsOfDirectoryAtPath:mobileLib error:nil];
+        for (NSString *item in mobileLibContents) {
+            NSString *lower = [item lowercaseString];
+            if ([lower containsString:@"notif"] || [lower containsString:@"bulletin"] ||
+                [lower containsString:@"push"] || [lower containsString:@"duet"] ||
+                [lower containsString:@"biome"] || [lower containsString:@"usernotif"]) {
+                writeDebugLog([NSString stringWithFormat:@"Found: /var/mobile/Library/%@", item]);
+                NSString *itemPath = [mobileLib stringByAppendingPathComponent:item];
+                if ([fm fileExistsAtPath:itemPath isDirectory:&isDir] && isDir) {
+                    NSArray *subContents = [fm contentsOfDirectoryAtPath:itemPath error:nil];
+                    writeDebugLog([NSString stringWithFormat:@"  Contents: %@", subContents]);
+                }
+            }
+        }
+
+        // Check BulletinBoard specifically - this is where iOS stores notification data
+        writeDebugLog(@"=== Checking BulletinBoard in detail ===");
+        NSString *bbPath = @"/var/mobile/Library/BulletinBoard";
+        if ([fm fileExistsAtPath:bbPath isDirectory:&isDir]) {
+            writeDebugLog([NSString stringWithFormat:@"BulletinBoard exists, isDir=%@", isDir ? @"YES" : @"NO"]);
+            if (isDir) {
+                NSArray *bbContents = [fm contentsOfDirectoryAtPath:bbPath error:nil];
+                writeDebugLog([NSString stringWithFormat:@"  Contents: %@", bbContents]);
+
+                // Check each subdirectory
+                for (NSString *sub in bbContents) {
+                    NSString *subPath = [bbPath stringByAppendingPathComponent:sub];
+                    if ([fm fileExistsAtPath:subPath isDirectory:&isDir] && isDir) {
+                        NSArray *subContents = [fm contentsOfDirectoryAtPath:subPath error:nil];
+                        writeDebugLog([NSString stringWithFormat:@"  %@/ contents: %@", sub, subContents]);
+                    }
+                }
+            }
+        } else {
+            writeDebugLog(@"BulletinBoard does not exist");
+        }
+
+        // Check /private/var for notification databases
+        writeDebugLog(@"=== Checking /private/var paths ===");
+        NSArray *privateVarPaths = @[
+            @"/private/var/mobile/Library/BulletinBoard",
+            @"/private/var/mobile/Library/SpringBoard",
+            @"/private/var/mobile/Library/UserNotifications"
+        ];
+        for (NSString *path in privateVarPaths) {
+            BOOL exists = [fm fileExistsAtPath:path isDirectory:&isDir];
+            writeDebugLog([NSString stringWithFormat:@"Path '%@': exists=%@, isDir=%@",
+                          path, exists ? @"YES" : @"NO", isDir ? @"YES" : @"NO"]);
+            if (exists && isDir) {
+                NSArray *contents = [fm contentsOfDirectoryAtPath:path error:nil];
+                writeDebugLog([NSString stringWithFormat:@"  Contents: %@", contents]);
             }
         }
         for (NSString *searchPath in searchPaths) {
