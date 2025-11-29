@@ -311,7 +311,6 @@ struct DebugLogView: View {
                     .font(.system(.caption, design: .monospaced))
                     .padding()
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .textSelection(.enabled)
             }
             .navigationTitle("Debug Log")
             .navigationBarTitleDisplayMode(.inline)
@@ -324,7 +323,7 @@ struct DebugLogView: View {
                         Button(action: { shareLog() }) {
                             Label("Share", systemImage: "square.and.arrow.up")
                         }
-                        Button(role: .destructive, action: { clearLog() }) {
+                        Button(action: { clearLog() }) {
                             Label("Clear Log", systemImage: "trash")
                         }
                     } label: {
